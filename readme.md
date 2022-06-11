@@ -37,3 +37,9 @@
 
 - フォルダの中に、`md5(ASIN).jpg` のファイル名でカバー画像が入ってる
 
+## 利用パッケージ
+
+| パッケージ名     | 用途                 | URL                                         |
+| ---------------- | -------------------- | ------------------------------------------- |
+| ReactiveProperty | Binding 更新         | https://github.com/runceel/ReactiveProperty |
+| AvalonDock       | ドッキングレイアウト | https://github.com/Dirkster99/AvalonDock    |

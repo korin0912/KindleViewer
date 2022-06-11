@@ -1,7 +1,6 @@
 ﻿using System;
 using System.IO;
 using System.Collections.Generic;
-using System.Xml;
 
 namespace KindleViewer
 {
@@ -13,8 +12,8 @@ namespace KindleViewer
 
         public static readonly string CoverCacheFolderPath = $"{CacheFolderPath}{Path.DirectorySeparatorChar}covers";
 
-        private List<KindleBook> books = new List<KindleBook>();
-        public KindleBook[] Books => books.ToArray();
+        private List<Book> books = new List<Book>();
+        public Book[] Books => books.ToArray();
 
         /// <summary>
         /// コンストラクタ
@@ -35,7 +34,13 @@ namespace KindleViewer
             {
                 XmlUtils.SelectNodes(rootNode, "response/add_update_list/meta_data", node =>
                 {
-                    var book = new KindleBook();
+                    // デバッグ用
+                    if (books.Count >= 500)
+                    {
+                        return;
+                    }
+
+                    var book = new Book();
                     if (book.ParseXML(books.Count, node))
                     {
                         books.Add(book);

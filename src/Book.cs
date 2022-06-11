@@ -1,11 +1,18 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Text;
+using System.IO;
 using System.Xml;
+using System.Windows.Media.Imaging;
+using System.Security.Cryptography;
+using Reactive.Bindings;
 
 namespace KindleViewer
 {
-    public class KindleBook
+    public class Book
     {
+        public static readonly DateTime UnknownDateTime = new DateTime(1900, 1, 1, 0, 0, 0);
+
         public int Index { get; private set; } = -1;
 
         public string ASIN { get; private set; } = "";
@@ -42,12 +49,14 @@ namespace KindleViewer
 
         public List<string> Origins { get; private set; } = new List<string>();
 
-        public static readonly DateTime UnknownDateTime = new DateTime(1900, 1, 1, 0, 0, 0);
+        public ReactiveProperty<BitmapImage> CoverImage { get; private set; } = new ReactiveProperty<BitmapImage>();
+
+        public bool IsCoverImageLoaded { get; private set; } = false;
 
         /// <summary>
         /// コンストラクタ
         /// </summary>
-        public KindleBook()
+        public Book()
         {
         }
 
@@ -130,6 +139,49 @@ namespace KindleViewer
             }
 
             return PurchaseDate != UnknownDateTime;
+        }
+
+        /// <summary>
+        /// カバー画像読み込み
+        /// </summary>
+        public void LoadCoverImage()
+        {
+            if (IsCoverImageLoaded)
+            {
+                return;
+            }
+
+            IsCoverImageLoaded = true;
+
+            if (string.IsNullOrEmpty(ASIN))
+            {
+                return;
+            }
+
+            // ASIN から カバー画像ファイル名取得
+            var md5 = MD5.Create();
+            var fhash = md5.ComputeHash(Encoding.UTF8.GetBytes(ASIN));
+            md5.Clear();
+            var sb = new StringBuilder();
+            foreach (var b in fhash)
+            {
+                sb.Append(b.ToString("X2"));
+            }
+            var fname = sb.ToString();
+
+            // 画像ローダーでロード
+            ImageLoader.Instance.Load(
+                $"{Kindle.CoverCacheFolderPath}{Path.DirectorySeparatorChar}{fname}.jpg",
+                image =>
+                {
+                    if (image == null)
+                    {
+                        return;
+                    }
+
+                    CoverImage.Value = image;
+                }
+            );
         }
     }
 }

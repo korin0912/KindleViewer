@@ -5,9 +5,60 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:KindleViewer"
+        xmlns:avalonDock="https://github.com/Dirkster99/AvalonDock"
         mc:Ignorable="d"
         Title="MainWindow"
         Height="810"
         Width="1440">
-    <Grid></Grid>
+    <avalonDock:DockingManager
+            x:Name="uxDockingManager"
+            AllowMixedOrientation="True">
+        <avalonDock:DockingManager.Theme>
+            <avalonDock:MetroTheme />
+        </avalonDock:DockingManager.Theme>
+        <avalonDock:LayoutRoot>
+            <avalonDock:LayoutPanel Orientation="Vertical">
+                <avalonDock:LayoutPanel Orientation="Horizontal">
+                    <avalonDock:LayoutDocumentPane x:Name="uxDocumentPane">
+                        <avalonDock:LayoutDocument
+                                Title="  一覧  "
+                                ContentId="BookList"
+                                CanClose="false">
+                            <ListView
+                                    x:Name="BookListView"
+                                    ItemsSource="{Binding Books}"
+                                    SelectionMode="Extended"
+                                    ScrollViewer.HorizontalScrollBarVisibility="Disabled">
+                                <ListView.ItemsPanel>
+                                    <ItemsPanelTemplate>
+                                        <WrapPanel />
+                                    </ItemsPanelTemplate>
+                                </ListView.ItemsPanel>
+                                <ListView.ItemTemplate>
+                                    <DataTemplate>
+                                        <StackPanel
+                                                Orientation="Vertical"
+                                                Width="100"
+                                                Height="200"
+                                                VerticalAlignment="Top">
+                                            <Image
+                                                    Source="{Binding CoverImage.Value}"
+                                                    Width="100"
+                                                    Height="150" />
+                                            <TextBlock
+                                                    Text="{Binding Title}"
+                                                    TextWrapping="Wrap"
+                                                    TextTrimming="CharacterEllipsis"
+                                                    Width="100"
+                                                    Height="50" />
+                                        </StackPanel>
+                                    </DataTemplate>
+                                </ListView.ItemTemplate>
+                            </ListView>
+                        </avalonDock:LayoutDocument>
+                    </avalonDock:LayoutDocumentPane>
+                </avalonDock:LayoutPanel>
+            </avalonDock:LayoutPanel>
+        </avalonDock:LayoutRoot>
+    </avalonDock:DockingManager>
 </Window>

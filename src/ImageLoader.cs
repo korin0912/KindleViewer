@@ -20,6 +20,7 @@ namespace KindleViewer
         }
 
         private Queue<LoadData> loadDatas = new Queue<LoadData>();
+        private Dictionary<string, BitmapImage> caches = new Dictionary<string, BitmapImage>();
 
         private object loaderLockObject = new object();
         private CancellationTokenSource loaderCancelSource = null;
@@ -30,6 +31,7 @@ namespace KindleViewer
         private ImageLoader()
         {
             loadDatas.Clear();
+            caches.Clear();
         }
 
         /// <summary>
@@ -63,12 +65,17 @@ namespace KindleViewer
         {
             lock (loaderLockObject)
             {
+                if (caches.ContainsKey(filePath))
+                {
+                    action?.Invoke(caches[filePath]);
+                    return;
+                }
+
                 loadDatas.Enqueue(new LoadData()
                 {
                     filePath = filePath,
                     action = action,
                 });
-
                 // Log.Info($"image load enque {filePath}. count={loadDatas.Count}");
             }
         }
@@ -101,9 +108,6 @@ namespace KindleViewer
 
                         foreach (var data in loads)
                         {
-
-                            // Log.Info($"image load {data.filePath}");
-
                             var image = default(BitmapImage);
 
                             // 画像ロード
@@ -117,6 +121,11 @@ namespace KindleViewer
                                     image.EndInit();
 
                                     image.Freeze();
+
+                                    if (!caches.ContainsKey(data.filePath))
+                                    {
+                                        caches.Add(data.filePath, image);
+                                    }
                                 }
                                 catch (Exception ex)
                                 {

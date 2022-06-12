@@ -5,12 +5,18 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:KindleViewer"
-        xmlns:avalonDock="https://github.com/Dirkster99/AvalonDock"
         mc:Ignorable="d">
     <ListView
             x:Name="BookListView_ListView"
             SelectionMode="Extended"
             ScrollViewer.HorizontalScrollBarVisibility="Disabled">
+        <ListView.Resources>
+            <Style TargetType="{x:Type ListViewItem}">
+                <EventSetter
+                        Event="MouseDoubleClick"
+                        Handler="ListViewItem_MouseDoubleClick" />
+            </Style>
+        </ListView.Resources>
         <ListView.ItemsPanel>
             <ItemsPanelTemplate>
                 <WrapPanel />

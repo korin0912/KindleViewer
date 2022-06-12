@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Input;
 using System.Threading.Tasks;
 
 namespace KindleViewer
@@ -9,6 +10,7 @@ namespace KindleViewer
     {
         private Kindle kindle = null;
 
+        private bool isInitialized = false;
         private ListView listView = null;
         private ScrollViewer listScrollViewer = null;
 
@@ -24,7 +26,13 @@ namespace KindleViewer
 
             this.Loaded += (s, e) =>
             {
-                Log.Info("InitializeComponent loaded");
+                if (isInitialized)
+                {
+                    return;
+                }
+                isInitialized = true;
+
+                Log.Info($"BookListView loaded.");
 
                 listView = this.FindName("BookListView_ListView") as ListView;
                 if (listView == null)
@@ -39,7 +47,6 @@ namespace KindleViewer
                 };
 
                 listScrollViewer = listView.FindDescendant<ScrollViewer>();
-                Log.Info($"ScrollViewer get {(listScrollViewer != null ? "success" : "fail")}");
                 if (listScrollViewer != null)
                 {
                     listScrollViewer.ScrollChanged += (s, e) =>
@@ -53,7 +60,7 @@ namespace KindleViewer
                 {
                     for (var i = 0; i < kindle.Books.Length;)
                     {
-                        for (var j = 0; j < 100 && i < kindle.Books.Length; j++, i++)
+                        for (var j = 0; j < 10 && i < kindle.Books.Length; j++, i++)
                         {
                             listView.Items.Add(kindle.Books[i]);
                         }
@@ -114,6 +121,34 @@ namespace KindleViewer
                     book.LoadCoverImage();
                 }
             }
+        }
+
+        /// <summary>
+        /// イベント - アイテムをマウスダブルクリック
+        /// </summary>
+        /// <param name="s"></param>
+        /// <param name="e"></param>
+        private void ListViewItem_MouseDoubleClick(object s, MouseEventArgs e)
+        {
+            var item = s as ListViewItem;
+            if (item == null)
+            {
+                return;
+            }
+
+            var book = item.DataContext as Book;
+            if (book == null)
+            {
+                return;
+            }
+
+            var mainWindow = Application.Current.MainWindow as MainWindow;
+            if (mainWindow == null)
+            {
+                return;
+            }
+
+            mainWindow.AddLayoutDocument(book.Title, new ReaderWewbView(book));
         }
     }
 }

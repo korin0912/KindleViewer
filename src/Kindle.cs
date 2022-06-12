@@ -12,6 +12,8 @@ namespace KindleViewer
 
         public static readonly string CoverCacheFolderPath = $"{CacheFolderPath}{Path.DirectorySeparatorChar}covers";
 
+        public static readonly string KindleCloudReaderUriPrefix = "https://read.amazon.co.jp/manga/";
+
         private List<Book> books = new List<Book>();
         public Book[] Books => books.ToArray();
 

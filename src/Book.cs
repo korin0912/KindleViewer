@@ -53,6 +53,8 @@ namespace KindleViewer
 
         public bool IsCoverImageLoaded { get; private set; } = false;
 
+        public Uri ReaderURI { get; private set; } = null;
+
         /// <summary>
         /// コンストラクタ
         /// </summary>
@@ -131,6 +133,9 @@ namespace KindleViewer
                 {
                     Origins.Add(XmlUtils.GetInnerText(node));
                 });
+
+                ReaderURI = new Uri($"{Kindle.KindleCloudReaderUriPrefix}{ASIN}?language={System.Globalization.CultureInfo.CurrentCulture.Name}");
+                // ReaderURI = new Uri("https://www.google.co.jp");
             }
             catch (Exception ex)
             {

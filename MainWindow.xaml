@@ -10,12 +10,28 @@
         Title="MainWindow"
         Height="810"
         Width="1440">
+    <Window.InputBindings>
+        <KeyBinding
+                Gesture="Ctrl+W"
+                Command="{Binding DocumentCloseCommand}" />
+    </Window.InputBindings>
     <avalonDock:DockingManager
             x:Name="DockingManager"
             AllowMixedOrientation="True">
         <avalonDock:DockingManager.Theme>
+            <!-- <avalonDock:ExpressionLightTheme /> -->
             <avalonDock:MetroTheme />
         </avalonDock:DockingManager.Theme>
+        <avalonDock:DockingManager.Resources>
+            <Style TargetType="{x:Type avalonDock:LayoutDocumentTabItem}">
+                <Setter
+                        Property="Width"
+                        Value="100" />
+                <Setter
+                        Property="HorizontalContentAlignment"
+                        Value="Center" />
+            </Style>
+        </avalonDock:DockingManager.Resources>
         <avalonDock:LayoutRoot>
             <avalonDock:LayoutPanel Orientation="Vertical">
                 <avalonDock:LayoutPanel Orientation="Horizontal">

@@ -34,11 +34,11 @@ namespace KindleViewer
             {
                 XmlUtils.SelectNodes(rootNode, "response/add_update_list/meta_data", node =>
                 {
-                    // デバッグ用
-                    if (books.Count >= 500)
-                    {
-                        return;
-                    }
+                    // // デバッグ用
+                    // if (books.Count >= 500)
+                    // {
+                    //     return;
+                    // }
 
                     var book = new Book();
                     if (book.ParseXML(books.Count, node))

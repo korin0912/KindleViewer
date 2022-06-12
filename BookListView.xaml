@@ -9,7 +9,6 @@
         mc:Ignorable="d">
     <ListView
             x:Name="BookListView_ListView"
-            ItemsSource="{Binding Books}"
             SelectionMode="Extended"
             ScrollViewer.HorizontalScrollBarVisibility="Disabled">
         <ListView.ItemsPanel>

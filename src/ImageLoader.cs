@@ -80,6 +80,8 @@ namespace KindleViewer
         /// <returns></returns>
         private async Task LoadTaskProc(CancellationToken cancelToken)
         {
+            var loads = new List<LoadData>();
+
             while (!cancelToken.IsCancellationRequested)
             {
                 bool loaded = false;
@@ -88,39 +90,49 @@ namespace KindleViewer
                 {
                     if (loadDatas.Count > 0)
                     {
-                        var data = loadDatas.Dequeue();
+                        loaded = true;
 
-                        // Log.Info($"image load {data.filePath}");
-
-                        var image = default(BitmapImage);
-
-                        // 画像ロード
-                        if (File.Exists(data.filePath))
+                        // 10個単位で読みだす
+                        loads.Clear();
+                        for (var i = 0; i < 10 && loadDatas.Count > 0; i++)
                         {
+                            loads.Add(loadDatas.Dequeue());
+                        }
+
+                        foreach (var data in loads)
+                        {
+
+                            // Log.Info($"image load {data.filePath}");
+
+                            var image = default(BitmapImage);
+
+                            // 画像ロード
+                            if (File.Exists(data.filePath))
+                            {
+                                try
+                                {
+                                    image = new BitmapImage();
+                                    image.BeginInit();
+                                    image.UriSource = new Uri(data.filePath);
+                                    image.EndInit();
+
+                                    image.Freeze();
+                                }
+                                catch (Exception ex)
+                                {
+                                    Log.Error($"image load fail. {ex.Message}");
+                                }
+                            }
+
+                            // 画像を渡す
                             try
                             {
-                                image = new BitmapImage();
-                                image.BeginInit();
-                                image.UriSource = new Uri(data.filePath);
-                                image.EndInit();
-
-                                image.Freeze();
+                                data.action?.Invoke(image);
                             }
                             catch (Exception ex)
                             {
-                                Log.Error($"image load fail. {ex.Message}");
+                                Log.Error($"invoke action fail. {ex.Message}");
                             }
-                        }
-
-                        // 画像を渡す
-                        try
-                        {
-                            data.action?.Invoke(image);
-                            loaded = true;
-                        }
-                        catch (Exception ex)
-                        {
-                            Log.Error($"invoke action fail. {ex.Message}");
                         }
                     }
                 }

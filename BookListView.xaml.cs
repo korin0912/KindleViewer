@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Windows;
 using System.Windows.Controls;
+using System.Threading.Tasks;
 
 namespace KindleViewer
 {
@@ -17,9 +18,9 @@ namespace KindleViewer
 
             DataContext = kindle;
 
-            InitializeComponent();
-
             this.kindle = kindle;
+
+            InitializeComponent();
 
             this.Loaded += (s, e) =>
             {
@@ -34,7 +35,7 @@ namespace KindleViewer
 
                 listView.SizeChanged += (s, e) =>
                 {
-                    UpdateScroll();
+                    UpdateBooks(GetShowRange());
                 };
 
                 listScrollViewer = listView.FindDescendant<ScrollViewer>();
@@ -43,22 +44,34 @@ namespace KindleViewer
                 {
                     listScrollViewer.ScrollChanged += (s, e) =>
                     {
-                        UpdateScroll();
+                        UpdateBooks(GetShowRange());
                     };
                 }
 
-                UpdateScroll();
+                // 起動を速くするため、スレッドでアイテムをちょっとずつ追加する
+                this.Dispatcher.Invoke(async () =>
+                {
+                    for (var i = 0; i < kindle.Books.Length;)
+                    {
+                        for (var j = 0; j < 100 && i < kindle.Books.Length; j++, i++)
+                        {
+                            listView.Items.Add(kindle.Books[i]);
+                        }
+                        await Task.Delay(1);
+                    }
+                });
             };
         }
 
         /// <summary>
-        /// スクロール時更新
+        /// 表示範囲取得
         /// </summary>
-        private void UpdateScroll()
+        /// <returns></returns>
+        private Range GetShowRange()
         {
             if (listView.Items.Count <= 0)
             {
-                return;
+                return new Range(0, -1);
             }
 
             // 画面に表示されている本のインデクス計算
@@ -77,14 +90,28 @@ namespace KindleViewer
             begin = Math.Clamp(begin, 0, listView.Items.Count - 1);
             end = Math.Clamp(end, 0, listView.Items.Count - 1);
 
-            // Log.Info($"{begin} - {end}, {listSize.Width}, {listSize.Height}, {itemSize.Width}");
+            // Log.Info($"{listSize.Width}, {listSize.Height}, {itemSize.Width}, {itemSize.Height}, {scroll}, {vCount}, {begin}, {end}");
+
+            return new Range(begin, end);
+        }
+
+        /// <summary>
+        /// 本更新
+        /// </summary>
+        private void UpdateBooks(Range range)
+        {
+            if (listView.Items.Count <= 0)
+            {
+                return;
+            }
 
             // カバー画像ロード
-            for (var i = begin; i <= end; i++)
+            for (var i = range.Start.Value; i <= range.End.Value; i++)
             {
-                if (!kindle.Books[i].IsCoverImageLoaded)
+                var book = listView.Items[i] as Book;
+                if (!book.IsCoverImageLoaded)
                 {
-                    kindle.Books[i].LoadCoverImage();
+                    book.LoadCoverImage();
                 }
             }
         }

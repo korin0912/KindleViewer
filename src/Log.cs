@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Text;
+using System.IO;
+using System.Runtime.CompilerServices;
 
 namespace KindleViewer
 {
@@ -14,7 +16,7 @@ namespace KindleViewer
             Error,
         }
 
-        private static void LogPut(Type type, string message)
+        private static void LogPut(Type type, string message, string filePath, int lineNumber)
         {
             switch (type)
             {
@@ -28,15 +30,21 @@ namespace KindleViewer
                 .Append("][")
                 .Append(type.ToString())
                 .Append("] ")
-                .Append(message);
+                .Append(message)
+                .Append(" (")
+                .Append(Path.GetFileName(filePath))
+                .Append(":")
+                .Append(lineNumber)
+                .Append(")")
+            ;
             Console.WriteLine(sb.ToString());
             Console.ResetColor();
         }
 
-        public static void Info(string message) => LogPut(Type.Info, message);
+        public static void Info(string message, [CallerFilePath] string filePath = "", [CallerLineNumber] int lineNumber = 0) => LogPut(Type.Info, message, filePath, lineNumber);
 
-        public static void Warning(string message) => LogPut(Type.Warning, message);
+        public static void Warning(string message, [CallerFilePath] string filePath = "", [CallerLineNumber] int lineNumber = 0) => LogPut(Type.Warning, message, filePath, lineNumber);
 
-        public static void Error(string message) => LogPut(Type.Error, message);
+        public static void Error(string message, [CallerFilePath] string filePath = "", [CallerLineNumber] int lineNumber = 0) => LogPut(Type.Error, message, filePath, lineNumber);
     }
 }

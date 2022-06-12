@@ -25,7 +25,8 @@ namespace KindleViewer
 
         public ReactiveCommand DocumentCloseCommand { get; } = new ReactiveCommand();
 
-        private AvalonDock.DockingManager dockingManager => this.FindName("DockingManager") as AvalonDock.DockingManager;
+        public AvalonDock.DockingManager ADDockingManager { get; private set; } = null;
+        public AvalonDock.Layout.LayoutDocumentPane ADLayoutDocumentPane { get; private set; } = null;
 
         public MainWindow()
         {
@@ -43,12 +44,15 @@ namespace KindleViewer
             {
                 Log.Info($"MainWindow loaded.");
 
+                ADDockingManager = this.FindName("adDockingManager") as AvalonDock.DockingManager;
+                ADLayoutDocumentPane = this.FindName("adLayoutDocumentPane") as AvalonDock.Layout.LayoutDocumentPane;
+
                 // ドキュメント閉じる
                 DocumentCloseCommand.Subscribe(_ =>
                 {
-                    if (dockingManager.ActiveContent != null)
+                    if (ADDockingManager.ActiveContent != null)
                     {
-                        CloseLayoutDocument(dockingManager.ActiveContent);
+                        CloseLayoutDocument(ADDockingManager.ActiveContent);
                     }
                 });
 
@@ -72,17 +76,16 @@ namespace KindleViewer
             }
 
             Log.Info($"add layoutDocument. {content.GetType().Name}");
-            var layoutDocumentPane = this.FindName("LayoutDocumentPane") as AvalonDock.Layout.LayoutDocumentPane;
             var layoutDocument = new AvalonDock.Layout.LayoutDocument();
             layoutDocument.Title = title;
             layoutDocument.Content = content;
             layoutDocument.CanClose = canClose;
-            layoutDocumentPane.Children.Add(layoutDocument);
+            ADLayoutDocumentPane.Children.Add(layoutDocument);
 
             // 追加と同時にアクティブにする
             if (actived)
             {
-                dockingManager.ActiveContent = content;
+                ADDockingManager.ActiveContent = content;
             }
         }
 
@@ -98,8 +101,7 @@ namespace KindleViewer
                 return;
             }
 
-            var layoutDocumentPane = this.FindName("LayoutDocumentPane") as AvalonDock.Layout.LayoutDocumentPane;
-            foreach (var doc in layoutDocumentPane.Children)
+            foreach (var doc in ADLayoutDocumentPane.Children)
             {
                 // 閉じるボタンが出てないと閉じれない
                 if (!doc.CanClose)

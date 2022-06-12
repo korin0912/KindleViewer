@@ -58,14 +58,26 @@ namespace KindleViewer
                 // 起動を速くするため、スレッドでアイテムをちょっとずつ追加する
                 this.Dispatcher.Invoke(async () =>
                 {
+                    Log.Info($"book add start.");
                     for (var i = 0; i < kindle.Books.Length;)
                     {
-                        for (var j = 0; j < 10 && i < kindle.Books.Length; j++, i++)
+                        // 一覧ドキュメントがアクティブなときだけアイテムを追加する
+                        var mainWindow = Application.Current.MainWindow as MainWindow;
+                        if (mainWindow != null && mainWindow.ADDockingManager.ActiveContent == this)
                         {
-                            listView.Items.Add(kindle.Books[i]);
+                            for (var j = 0; j < 10 && i < kindle.Books.Length; j++, i++)
+                            {
+                                listView.Items.Add(kindle.Books[i]);
+                            }
+                            await Task.Delay(1);
                         }
-                        await Task.Delay(1);
+                        // 違ったら長めにスリープさせる
+                        else
+                        {
+                            await Task.Delay(100);
+                        }
                     }
+                    Log.Info($"book add end.");
                 });
             };
         }

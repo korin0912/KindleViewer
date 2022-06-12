@@ -16,7 +16,7 @@
                 Command="{Binding DocumentCloseCommand}" />
     </Window.InputBindings>
     <avalonDock:DockingManager
-            x:Name="DockingManager"
+            x:Name="adDockingManager"
             AllowMixedOrientation="True">
         <avalonDock:DockingManager.Theme>
             <!-- <avalonDock:ExpressionLightTheme /> -->
@@ -35,7 +35,7 @@
         <avalonDock:LayoutRoot>
             <avalonDock:LayoutPanel Orientation="Vertical">
                 <avalonDock:LayoutPanel Orientation="Horizontal">
-                    <avalonDock:LayoutDocumentPane x:Name="LayoutDocumentPane" />
+                    <avalonDock:LayoutDocumentPane x:Name="adLayoutDocumentPane" />
                 </avalonDock:LayoutPanel>
             </avalonDock:LayoutPanel>
         </avalonDock:LayoutRoot>

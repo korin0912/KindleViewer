@@ -65,6 +65,7 @@ Kindle 本を閲覧するツール
 ### リーダー
 
 - 本を読むのは、Kindle Cloud Reader で行うので、URL に ASIN を渡して WebView で表示される
+  - `https://read.amazon.co.jp/manga/{ASIN}?language={LANG}`
 - アプリ側で ID/パスワード管理はしないで、WebView 側で Amazon の認証にまかせる
 
 ### 利用パッケージ

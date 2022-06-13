@@ -1,4 +1,4 @@
-﻿<Window
+﻿<mah:MetroWindow
         x:Class="KindleViewer.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
@@ -6,6 +6,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:KindleViewer"
         xmlns:avalonDock="https://github.com/Dirkster99/AvalonDock"
+        xmlns:mah="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro"
         mc:Ignorable="d"
         Title="MainWindow"
         Height="810"
@@ -18,10 +19,6 @@
     <avalonDock:DockingManager
             x:Name="adDockingManager"
             AllowMixedOrientation="True">
-        <avalonDock:DockingManager.Theme>
-            <!-- <avalonDock:ExpressionLightTheme /> -->
-            <avalonDock:MetroTheme />
-        </avalonDock:DockingManager.Theme>
         <avalonDock:DockingManager.Resources>
             <Style TargetType="{x:Type avalonDock:LayoutDocumentTabItem}">
                 <Setter
@@ -40,4 +37,4 @@
             </avalonDock:LayoutPanel>
         </avalonDock:LayoutRoot>
     </avalonDock:DockingManager>
-</Window>
+</mah:MetroWindow>

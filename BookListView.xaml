@@ -6,41 +6,82 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:KindleViewer"
         mc:Ignorable="d">
-    <ListView
-            x:Name="BookListView_ListView"
-            SelectionMode="Extended"
-            ScrollViewer.HorizontalScrollBarVisibility="Disabled">
-        <ListView.Resources>
-            <Style TargetType="{x:Type ListViewItem}">
-                <EventSetter
-                        Event="MouseDoubleClick"
-                        Handler="ListViewItem_MouseDoubleClick" />
-            </Style>
-        </ListView.Resources>
-        <ListView.ItemsPanel>
-            <ItemsPanelTemplate>
-                <WrapPanel />
-            </ItemsPanelTemplate>
-        </ListView.ItemsPanel>
-        <ListView.ItemTemplate>
-            <DataTemplate>
-                <StackPanel
-                        Orientation="Vertical"
-                        Width="100"
-                        Height="200"
-                        VerticalAlignment="Top">
-                    <Image
-                            Source="{Binding CoverImage.Value}"
-                            Width="100"
-                            Height="150" />
-                    <TextBlock
-                            Text="{Binding Title}"
-                            TextWrapping="Wrap"
-                            TextTrimming="CharacterEllipsis"
-                            Width="100"
-                            Height="50" />
-                </StackPanel>
-            </DataTemplate>
-        </ListView.ItemTemplate>
-    </ListView>
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto" />
+            <ColumnDefinition Width="5" />
+            <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
+        <StackPanel
+                Orientation="Vertical"
+                Width="100"
+                VerticalAlignment="Top"
+                HorizontalAlignment="Left">
+            <Label
+                    Content="ソート"
+                    Width="80"
+                    Margin="10,2,10,2"
+                    Grid.Column="0" />
+            <Button
+                    Content="購入日順"
+                    Width="80"
+                    Margin="10,2,10,2"
+                    Click="SortByPurchase_ButtonClick" />
+            <Button
+                    Content="名前順"
+                    Width="80"
+                    Margin="10,2,10,2"
+                    Click="SortByName_ButtonClick" />
+        </StackPanel>
+        <GridSplitter
+                Grid.Column="1"
+                HorizontalAlignment="Stretch" />
+        <Grid Grid.Column="2">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="30" />
+                <RowDefinition Height="*" />
+            </Grid.RowDefinitions>
+            <Label
+                    Content="path"
+                    Grid.Row="0" />
+            <ListView
+                    x:Name="BookListView_ListView"
+                    SelectionMode="Extended"
+                    ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                    Grid.Row="1">
+                <ListView.Resources>
+                    <Style TargetType="{x:Type ListViewItem}">
+                        <EventSetter
+                                Event="MouseDoubleClick"
+                                Handler="ListViewItem_MouseDoubleClick" />
+                    </Style>
+                </ListView.Resources>
+                <ListView.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <WrapPanel />
+                    </ItemsPanelTemplate>
+                </ListView.ItemsPanel>
+                <ListView.ItemTemplate>
+                    <DataTemplate>
+                        <StackPanel
+                                Orientation="Vertical"
+                                Width="100"
+                                Height="200"
+                                VerticalAlignment="Top">
+                            <Image
+                                    Source="{Binding CoverImage.Value}"
+                                    Width="100"
+                                    Height="150" />
+                            <TextBlock
+                                    Text="{Binding Title}"
+                                    TextWrapping="Wrap"
+                                    TextTrimming="CharacterEllipsis"
+                                    Width="100"
+                                    Height="50" />
+                        </StackPanel>
+                    </DataTemplate>
+                </ListView.ItemTemplate>
+            </ListView>
+        </Grid>
+    </Grid>
 </UserControl>

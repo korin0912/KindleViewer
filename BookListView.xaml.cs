@@ -1,7 +1,11 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace KindleViewer
@@ -13,6 +17,11 @@ namespace KindleViewer
         private bool isInitialized = false;
         private ListView listView = null;
         private ScrollViewer listScrollViewer = null;
+
+        private Queue<Book> loadQueue = new Queue<Book>();
+        private AsyncLock controlLock = new AsyncLock();
+
+        private CancellationTokenSource sortCancelSource = null;
 
         public BookListView(Kindle kindle)
         {
@@ -41,11 +50,13 @@ namespace KindleViewer
                     return;
                 }
 
+                // サイズ変わったら更新
                 listView.SizeChanged += (s, e) =>
                 {
                     UpdateBooks(GetShowRange());
                 };
 
+                // スクロールしたら更新
                 listScrollViewer = listView.FindDescendant<ScrollViewer>();
                 if (listScrollViewer != null)
                 {
@@ -55,31 +66,58 @@ namespace KindleViewer
                     };
                 }
 
-                // 起動を速くするため、スレッドでアイテムをちょっとずつ追加する
-                this.Dispatcher.Invoke(async () =>
-                {
-                    Log.Info($"book add start.");
-                    for (var i = 0; i < kindle.Books.Length;)
-                    {
-                        // 一覧ドキュメントがアクティブなときだけアイテムを追加する
-                        var mainWindow = Application.Current.MainWindow as MainWindow;
-                        if (mainWindow != null && mainWindow.ADDockingManager.ActiveContent == this)
-                        {
-                            for (var j = 0; j < 10 && i < kindle.Books.Length; j++, i++)
-                            {
-                                listView.Items.Add(kindle.Books[i]);
-                            }
-                            await Task.Delay(1);
-                        }
-                        // 違ったら長めにスリープさせる
-                        else
-                        {
-                            await Task.Delay(100);
-                        }
-                    }
-                    Log.Info($"book add end.");
-                });
+                // ListViewアイテムをロード
+                LoadListViewItem();
             };
+        }
+
+        /// <summary>
+        /// ListViewアイテムをロード
+        /// </summary>
+        private void LoadListViewItem()
+        {
+            if (kindle.Books.Length <= 0)
+            {
+                return;
+            }
+
+            // 起動を速くするため、非同期でアイテムをちょっとずつ追加する
+            this.Dispatcher.Invoke(async () =>
+            {
+                GetSortBooksByPurchaseDate(kindle.Books, ListSortDirection.Descending).ForEach(b => loadQueue.Enqueue(b));
+                Log.Info($"book add start. {loadQueue.Count}");
+                var loadLoop = true;
+                while (loadLoop)
+                {
+                    var mainWindow = Application.Current.MainWindow as MainWindow;
+                    var enabled = mainWindow != null && mainWindow.ADDockingManager.ActiveContent == this;
+
+                    // 一覧ドキュメントがアクティブなときだけアイテムを追加する
+                    if (enabled)
+                    {
+                        using (await controlLock.LockAsync())
+                        {
+                            for (var j = 0; j < 10 && loadQueue.Count > 0; j++)
+                            {
+                                listView.Items.Add(loadQueue.Dequeue());
+                            }
+
+                            if (loadQueue.Count <= 0)
+                            {
+                                loadLoop = false;
+                            }
+                        }
+
+                        await Task.Delay(1);
+                    }
+                    // 違ったら長めにスリープさせる
+                    else
+                    {
+                        await Task.Delay(100);
+                    }
+                }
+                Log.Info($"book add end. {listView.Items.Count}");
+            });
         }
 
         /// <summary>
@@ -142,6 +180,8 @@ namespace KindleViewer
         /// <param name="e"></param>
         private void ListViewItem_MouseDoubleClick(object s, MouseEventArgs e)
         {
+            Log.Info("ListViewItem_MouseDoubleClick");
+
             var item = s as ListViewItem;
             if (item == null)
             {
@@ -161,6 +201,124 @@ namespace KindleViewer
             }
 
             mainWindow.AddLayoutDocument(book.Title, new ReaderWewbView(book));
+        }
+
+        /// <summary>
+        /// ListView ソート
+        /// </summary>
+        /// <param name="field"></param>
+        /// <param name="direction"></param>
+        private void SortListView(string field, ListSortDirection direction)
+        {
+            if (sortCancelSource != null)
+            {
+                sortCancelSource.Dispose();
+                sortCancelSource = null;
+            }
+
+            Task.Run(async () =>
+            {
+                Log.Info("sort proc start");
+                using (await controlLock.LockAsync())
+                {
+                    sortCancelSource = new CancellationTokenSource();
+                    await SortListViewTaskProc(field, direction, sortCancelSource.Token);
+                }
+                Log.Info("sort proc end");
+            });
+        }
+
+        /// <summary>
+        /// ListView ソートタスク処理
+        /// </summary>
+        /// <param name="field"></param>
+        /// <param name="direction"></param>
+        /// <param name="cancelToken"></param>
+        private async Task SortListViewTaskProc(string field, ListSortDirection direction, CancellationToken cancelToken)
+        {
+            try
+            {
+                await this.Dispatcher.Invoke(async () =>
+                {
+                    var currentListItemCount = listView.Items.Count;
+
+                    // 現在読み込んでいるアイテムまでを、ソートしたアイテムに置き換える
+                    var sortQueue = new Queue<Book>();
+                    ((field == "Title") ? GetSortBooksByTitle(kindle.Books, direction) : GetSortBooksByPurchaseDate(kindle.Books, direction)).ForEach(b => sortQueue.Enqueue(b));
+
+                    var idx = 0;
+                    while (currentListItemCount > idx && !cancelToken.IsCancellationRequested)
+                    {
+                        // 10個ずつ処理する
+                        for (var i = 0; i < 10 && currentListItemCount > idx && !cancelToken.IsCancellationRequested; i++)
+                        {
+                            // 現在表示中のリストからアイテムを入れ替える
+                            listView.Items.RemoveAt(idx);
+                            listView.Items.Insert(idx, sortQueue.Dequeue());
+                            idx++;
+                        }
+
+                        await Task.Delay(1);
+                    }
+
+                    Log.Info($"sort. {idx}, {sortQueue.Count}");
+
+                    // 残りは loadQueue に任せる
+                    if (!cancelToken.IsCancellationRequested)
+                    {
+                        loadQueue.Clear();
+                        while (sortQueue.Count > 0)
+                        {
+                            loadQueue.Enqueue(sortQueue.Dequeue());
+                        }
+                    }
+
+                    // 表示を更新
+                    UpdateBooks(GetShowRange());
+                });
+            }
+            catch (Exception ex)
+            {
+                Log.Error(ex.Message);
+            }
+        }
+
+        /// <summary>
+        /// 購入日でソートした本リスト取得
+        /// </summary>
+        /// <param name="direction"></param>
+        /// <returns></returns>
+        public List<Book> GetSortBooksByPurchaseDate(IEnumerable<Book> books, ListSortDirection direction)
+            => ((direction == ListSortDirection.Ascending) ? books.OrderBy(b => b.PurchaseDate) : books.OrderByDescending(b => b.PurchaseDate)).ToList();
+
+        /// <summary>
+        /// 購入日でソートした本リスト取得
+        /// </summary>
+        /// <param name="direction"></param>
+        /// <returns></returns>
+        public List<Book> GetSortBooksByTitle(IEnumerable<Book> books, ListSortDirection direction)
+            => ((direction == ListSortDirection.Ascending) ? books.OrderBy(b => b.TitlePronunciation) : books.OrderByDescending(b => b.TitlePronunciation)).ToList();
+
+        /// <summary>
+        /// イベント - ソート - 名前順
+        /// </summary>
+        /// <param name="s"></param>
+        /// <param name="e"></param>
+        private void SortByName_ButtonClick(object s, EventArgs e)
+        {
+            Log.Info("SortByName_ButtonClick");
+            SortListView("Title", ListSortDirection.Ascending);
+        }
+
+        /// <summary>
+        /// イベント - ソート - 購入日順
+        /// </summary>
+        /// <param name="s"></param>
+        /// <param name="e"></param>
+        private void SortByPurchase_ButtonClick(object s, EventArgs e)
+        {
+            Log.Info("SortByPurchase_ButtonClick");
+            SortListView("PurchaseDate", ListSortDirection.Descending);
         }
     }
 }

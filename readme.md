@@ -75,3 +75,4 @@ Kindle 本を閲覧するツール
 | [ReactiveProperty](https://github.com/runceel/ReactiveProperty)                     | Binding 更新         |
 | [AvalonDock](https://github.com/Dirkster99/AvalonDock)                              | ドッキングレイアウト |
 | [Microsoft.Web.WebView2](https://docs.microsoft.com/ja-jp/microsoft-edge/webview2/) | WEB ページ表示       |
+| [MahApps.Metro](https://mahapps.com)                                                | オシャレデザイン     |

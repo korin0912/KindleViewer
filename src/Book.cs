@@ -51,8 +51,6 @@ namespace KindleViewer
 
         public bool IsUpdateShow { get; private set; } = false;
 
-        public ReactiveProperty<string> ListViewTitle { get; private set; } = new ReactiveProperty<string>();
-
         public ReactiveProperty<BitmapImage> CoverImage { get; private set; } = new ReactiveProperty<BitmapImage>();
 
         public Uri ReaderURI { get; private set; } = null;
@@ -160,9 +158,6 @@ namespace KindleViewer
 
             IsUpdateShow = true;
 
-            // タイトル
-            ListViewTitle.Value = Title;
-
             // カバー画像更新
             if (!string.IsNullOrEmpty(ASIN))
             {
@@ -205,11 +200,8 @@ namespace KindleViewer
 
             IsUpdateShow = false;
 
-            // タイトル
-            ListViewTitle.Value = "";
-
             // カバー画像
-            CoverImage.Value = null;
+            CoverImage = new ReactiveProperty<BitmapImage>();
         }
     }
 }

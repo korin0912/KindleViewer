@@ -5,6 +5,7 @@ using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
+using System.Threading.Tasks;
 
 namespace KindleViewer
 {
@@ -17,6 +18,8 @@ namespace KindleViewer
         private ScrollViewer listScrollViewer = null;
 
         private Size bookItemSize = new Size(0, 0);
+
+        private AsyncLock updateLock = new AsyncLock();
 
         public BookListView(Kindle kindle)
         {
@@ -122,15 +125,54 @@ namespace KindleViewer
 
             // Log.Info($"{range.Start} - {range.End}");
 
-            // カバー画像ロード
-            for (var i = range.Start.Value; i <= range.End.Value; i++)
+            // 本情報更新
+            var wrapPanel = listView.FindDescendant<WrapPanel>();
+
+            Task.Run(async () =>
             {
-                var book = listView.Items[i] as Book;
-                if (!book.IsUpdateShow)
+                using (await updateLock.LockAsync())
                 {
-                    book.UpdateShow();
+                    this.Dispatcher.Invoke(() =>
+                    {
+                        for (var i = range.Start.Value; i <= range.End.Value; i++)
+                        {
+                            var book = listView.Items[i] as Book;
+                            if (!book.IsUpdateShow)
+                            {
+                                var stackPanel = wrapPanel.Children[i].FindDescendant<StackPanel>();
+
+                                var image = new Image();
+                                book.CoverImage.Subscribe(async img =>
+                                {
+                                    using (await updateLock.LockAsync())
+                                    {
+                                        this.Dispatcher.Invoke(() =>
+                                        {
+                                            image.Source = img;
+                                        });
+                                    }
+                                });
+                                image.Width = 100;
+                                image.Height = 150;
+                                image.Margin = new Thickness(0, 0, 0, 0);
+                                stackPanel.Children.Add(image);
+
+                                var textBlock = new TextBlock();
+                                textBlock.Text = book.Title;
+                                textBlock.Width = 100;
+                                textBlock.Height = 50;
+                                textBlock.Margin = new Thickness(0, 0, 0, 0);
+                                textBlock.HorizontalAlignment = HorizontalAlignment.Left;
+                                textBlock.TextWrapping = TextWrapping.Wrap;
+                                textBlock.TextTrimming = TextTrimming.CharacterEllipsis;
+                                stackPanel.Children.Add(textBlock);
+
+                                book.UpdateShow();
+                            }
+                        }
+                    });
                 }
-            }
+            });
         }
 
         /// <summary>
@@ -174,19 +216,24 @@ namespace KindleViewer
 
             this.Dispatcher.Invoke(() =>
             {
-                // 一旦全部消す
-                listView.Items.Clear();
-
-                // ソートして追加
-                var books = ((field == "Title") ? GetSortBooksByTitle(kindle.Books, direction) : GetSortBooksByPurchaseDate(kindle.Books, direction));
-                foreach (var book in books)
+                // 一旦 StackPanel の中身を全部消す
+                var wrapPanel = listView.FindDescendant<WrapPanel>();
+                for (var i = 0; i < wrapPanel.Children.Count; i++)
                 {
-                    book.UpdateHide();  // 非表示にしておく
-                    listView.Items.Add(book);
+                    var stackPanel = wrapPanel.Children[i].FindDescendant<StackPanel>();
+                    stackPanel.Children.Clear();
                 }
 
-                UpdateBooks(GetShowRange());
+                // ソートして、本を全部非表示状態に戻して置き換える
+                var books = ((field == "Title") ? GetSortBooksByTitle(kindle.Books, direction) : GetSortBooksByPurchaseDate(kindle.Books, direction));
+                for (var i = 0; i < books.Count; i++)
+                {
+                    books[i].UpdateHide();
+                    listView.Items[i] = books[i];
+                }
             });
+
+            UpdateBooks(GetShowRange());
 
             Log.Info("sort end");
         }

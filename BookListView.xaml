@@ -67,18 +67,7 @@
                                 Orientation="Vertical"
                                 Width="100"
                                 Height="200"
-                                VerticalAlignment="Top">
-                            <Image
-                                    Source="{Binding CoverImage.Value}"
-                                    Width="100"
-                                    Height="150" />
-                            <TextBlock
-                                    Text="{Binding ListViewTitle.Value}"
-                                    TextWrapping="Wrap"
-                                    TextTrimming="CharacterEllipsis"
-                                    Width="100"
-                                    Height="50" />
-                        </StackPanel>
+                                VerticalAlignment="Top" />
                     </DataTemplate>
                 </ListView.ItemTemplate>
             </ListView>

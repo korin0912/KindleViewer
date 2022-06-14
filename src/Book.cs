@@ -49,9 +49,11 @@ namespace KindleViewer
 
         public List<string> Origins { get; private set; } = new List<string>();
 
-        public ReactiveProperty<BitmapImage> CoverImage { get; private set; } = new ReactiveProperty<BitmapImage>();
+        public bool IsUpdateShow { get; private set; } = false;
 
-        public bool IsCoverImageLoaded { get; private set; } = false;
+        public ReactiveProperty<string> ListViewTitle { get; private set; } = new ReactiveProperty<string>();
+
+        public ReactiveProperty<BitmapImage> CoverImage { get; private set; } = new ReactiveProperty<BitmapImage>();
 
         public Uri ReaderURI { get; private set; } = null;
 
@@ -147,46 +149,67 @@ namespace KindleViewer
         }
 
         /// <summary>
-        /// カバー画像読み込み
+        /// 表示更新
         /// </summary>
-        public void LoadCoverImage()
+        public void UpdateShow()
         {
-            if (IsCoverImageLoaded)
+            if (IsUpdateShow)
             {
                 return;
             }
 
-            IsCoverImageLoaded = true;
+            IsUpdateShow = true;
 
-            if (string.IsNullOrEmpty(ASIN))
+            // タイトル
+            ListViewTitle.Value = Title;
+
+            // カバー画像更新
+            if (!string.IsNullOrEmpty(ASIN))
             {
-                return;
-            }
-
-            // ASIN から カバー画像ファイル名取得
-            var md5 = MD5.Create();
-            var fhash = md5.ComputeHash(Encoding.UTF8.GetBytes(ASIN));
-            md5.Clear();
-            var sb = new StringBuilder();
-            foreach (var b in fhash)
-            {
-                sb.Append(b.ToString("X2"));
-            }
-            var fname = sb.ToString();
-
-            // 画像ローダーでロード
-            ImageLoader.Instance.Load(
-                $"{Kindle.CoverCacheFolderPath}{Path.DirectorySeparatorChar}{fname}.jpg",
-                image =>
+                // ASIN から カバー画像ファイル名取得
+                var md5 = MD5.Create();
+                var fhash = md5.ComputeHash(Encoding.UTF8.GetBytes(ASIN));
+                md5.Clear();
+                var sb = new StringBuilder();
+                foreach (var b in fhash)
                 {
-                    if (image == null)
-                    {
-                        return;
-                    }
-
-                    CoverImage.Value = image;
+                    sb.Append(b.ToString("X2"));
                 }
-            );
+                var fname = sb.ToString();
+
+                // 画像ローダーでロード
+                ImageLoader.Instance.Load(
+                    $"{Kindle.CoverCacheFolderPath}{Path.DirectorySeparatorChar}{fname}.jpg",
+                    image =>
+                    {
+                        if (image == null)
+                        {
+                            return;
+                        }
+
+                        CoverImage.Value = image;
+                    }
+                );
+            }
+        }
+
+        /// <summary>
+        /// 非表示更新
+        /// </summary>
+        public void UpdateHide()
+        {
+            if (!IsUpdateShow)
+            {
+                return;
+            }
+
+            IsUpdateShow = false;
+
+            // タイトル
+            ListViewTitle.Value = "";
+
+            // カバー画像
+            CoverImage.Value = null;
         }
     }
 }

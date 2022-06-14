@@ -73,7 +73,7 @@
                                     Width="100"
                                     Height="150" />
                             <TextBlock
-                                    Text="{Binding Title}"
+                                    Text="{Binding ListViewTitle.Value}"
                                     TextWrapping="Wrap"
                                     TextTrimming="CharacterEllipsis"
                                     Width="100"

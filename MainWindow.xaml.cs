@@ -59,6 +59,11 @@ namespace KindleViewer
                 // 本一覧追加
                 AddLayoutDocument("一覧", new BookListView(kindle), true, false);
             };
+
+            this.Activated += (s, e) =>
+            {
+                Log.Info($"MainWindows showed.");
+            };
         }
 
         /// <summary>

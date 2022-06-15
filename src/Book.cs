@@ -49,7 +49,7 @@ namespace KindleViewer
 
         public List<string> Origins { get; private set; } = new List<string>();
 
-        public bool IsUpdateShow { get; private set; } = false;
+        public bool IsShow { get; private set; } = false;
 
         public ReactiveProperty<BitmapImage> CoverImage { get; private set; } = new ReactiveProperty<BitmapImage>();
 
@@ -149,14 +149,14 @@ namespace KindleViewer
         /// <summary>
         /// 表示更新
         /// </summary>
-        public void UpdateShow()
+        public void Show()
         {
-            if (IsUpdateShow)
+            if (IsShow)
             {
                 return;
             }
 
-            IsUpdateShow = true;
+            IsShow = true;
 
             // カバー画像更新
             if (!string.IsNullOrEmpty(ASIN))
@@ -191,14 +191,14 @@ namespace KindleViewer
         /// <summary>
         /// 非表示更新
         /// </summary>
-        public void UpdateHide()
+        public void Hide()
         {
-            if (!IsUpdateShow)
+            if (!IsShow)
             {
                 return;
             }
 
-            IsUpdateShow = false;
+            IsShow = false;
 
             // カバー画像
             CoverImage = new ReactiveProperty<BitmapImage>();

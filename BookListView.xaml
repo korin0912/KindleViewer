@@ -41,8 +41,14 @@
                 <RowDefinition Height="30" />
                 <RowDefinition Height="*" />
             </Grid.RowDefinitions>
-            <Label
-                    Content="path"
+            <TextBox
+                    AcceptsReturn="False"
+                    AcceptsTab="False"
+                    TextWrapping="NoWrap"
+                    HorizontalScrollBarVisibility="Auto"
+                    VerticalScrollBarVisibility="Disabled"
+                    KeyDown="FilterTextBox_KeyDown"
+                    x:Name="BookListView_TextBox_Filter"
                     Grid.Row="0" />
             <ListView
                     x:Name="BookListView_ListView"

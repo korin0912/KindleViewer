@@ -17,6 +17,7 @@ namespace KindleViewer
 
         private bool isInitialized = false;
         private ListView listView = null;
+        private TreeView treeView = null;
         private ScrollViewer listScrollViewer = null;
 
         private Size bookItemSize = new Size(0, 0);
@@ -49,7 +50,8 @@ namespace KindleViewer
 
                 Log.Info($"BookListView loaded.");
 
-                // ListView 取得
+                // -------------------------
+                // ListView
                 listView = this.FindName("BookListView_ListView") as ListView;
                 if (listView == null)
                 {
@@ -107,6 +109,10 @@ namespace KindleViewer
 
                     return ret;
                 };
+
+                // -------------------------
+                // TreeView 
+                treeView = this.FindName("Sorter_TreeView") as TreeView;
             };
         }
 
@@ -223,12 +229,22 @@ namespace KindleViewer
         /// <param name="sortDescription"></param>
         private void SetBooksSort(Func<IEnumerable<Book>, ListSortDirection, List<Book>> sorter, ListSortDirection direction)
         {
+            if (listView == null)
+            {
+                return;
+            }
+
             Log.Info($"set books sort. {direction.ToString()}");
 
             this.Dispatcher.Invoke(() =>
             {
                 // 一旦 StackPanel の中身を全部消す
                 var wrapPanel = listView.FindDescendant<WrapPanel>();
+                if (wrapPanel == null)
+                {
+                    return;
+                }
+
                 foreach (var child in wrapPanel.Children)
                 {
                     var stackPanel = (child as UIElement).FindDescendant<StackPanel>();
@@ -324,6 +340,16 @@ namespace KindleViewer
         }
 
         /// <summary>
+        /// イベント - ツリービューアイテム選択
+        /// </summary>
+        /// <param name="s"></param>
+        /// <param name="e"></param>
+        private void TreeView_SelectedItemChanged(object s, RoutedPropertyChangedEventArgs<Object> e)
+        {
+            var selectedItem = treeView.SelectedItem;
+        }
+
+        /// <summary>
         /// イベント - ソート - 名前順
         /// </summary>
         /// <param name="s"></param>
@@ -342,6 +368,28 @@ namespace KindleViewer
         private void SortByPurchase_ButtonClick(object s, EventArgs e)
         {
             Log.Info("SortByPurchase_ButtonClick");
+            SetBooksSort(GetSortBooksByPurchaseDate, ListSortDirection.Descending);
+        }
+
+        /// <summary>
+        /// イベント - ソート - 名前順
+        /// </summary>
+        /// <param name="s"></param>
+        /// <param name="e"></param>
+        private void SortByName_RadioButtonChecked(object s, EventArgs e)
+        {
+            Log.Info($"SortByName_RadioButtonChecked");
+            SetBooksSort(GetSortBooksByTitle, ListSortDirection.Ascending);
+        }
+
+        /// <summary>
+        /// イベント - ソート - 購入日順
+        /// </summary>
+        /// <param name="s"></param>
+        /// <param name="e"></param>
+        private void SortByPurchase_RadioButtonChecked(object s, EventArgs e)
+        {
+            Log.Info("SortByPurchase_RadioButtonChecked");
             SetBooksSort(GetSortBooksByPurchaseDate, ListSortDirection.Descending);
         }
 

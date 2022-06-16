@@ -8,35 +8,55 @@
         mc:Ignorable="d">
     <Grid>
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="Auto" />
+            <ColumnDefinition Width="200" />
             <ColumnDefinition Width="5" />
             <ColumnDefinition Width="*" />
             <ColumnDefinition Width="300" />
         </Grid.ColumnDefinitions>
-        <StackPanel
-                Orientation="Vertical"
-                Width="100"
-                VerticalAlignment="Top"
-                HorizontalAlignment="Left">
-            <Label
-                    Content="ソート"
-                    Width="80"
-                    Margin="10,2,10,2"
-                    Grid.Column="0" />
-            <Button
-                    Content="購入日順"
-                    Width="80"
-                    Margin="10,2,10,2"
-                    Click="SortByPurchase_ButtonClick" />
-            <Button
-                    Content="名前順"
-                    Width="80"
-                    Margin="10,2,10,2"
-                    Click="SortByName_ButtonClick" />
-        </StackPanel>
+
+        <Grid Grid.Column="0">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="*" />
+            </Grid.RowDefinitions>
+            <GroupBox
+                    Header="並び替え"
+                    HorizontalContentAlignment="Stretch"
+                    Grid.Row="0"
+                    Margin="5,5,5,5">
+                <StackPanel
+                        Orientation="Vertical"
+                        VerticalAlignment="Top"
+                        HorizontalAlignment="Stretch">
+                    <RadioButton
+                            Content="購入日"
+                            HorizontalAlignment="Stretch"
+                            Style="{StaticResource {x:Type ToggleButton}}"
+                            Margin="5,5,5,5"
+                            IsChecked="True"
+                            Checked="SortByPurchase_RadioButtonChecked"/>
+                    <RadioButton
+                            Content="名前"
+                            HorizontalAlignment="Stretch"
+                            Style="{StaticResource {x:Type ToggleButton}}"
+                            Margin="5,5,5,5"
+                            Checked="SortByName_RadioButtonChecked"/>
+                </StackPanel>
+            </GroupBox>
+            <TreeView
+                    x:Name="Sorter_TreeView"
+                    HorizontalAlignment="Stretch"
+                    VerticalAlignment="Stretch"
+                    SelectedItemChanged="TreeView_SelectedItemChanged"
+                    Grid.Row="1">
+                <TreeViewItem Header="すべて" />
+            </TreeView>
+        </Grid>
+
         <GridSplitter
                 Grid.Column="1"
                 HorizontalAlignment="Stretch" />
+
         <Grid Grid.Column="2">
             <Grid.RowDefinitions>
                 <RowDefinition Height="30" />
@@ -80,6 +100,7 @@
                 </ListView.ItemTemplate>
             </ListView>
         </Grid>
+
         <Grid Grid.Column="3">
             <StackPanel
                     Width="300"

@@ -11,6 +11,7 @@
             <ColumnDefinition Width="Auto" />
             <ColumnDefinition Width="5" />
             <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="300" />
         </Grid.ColumnDefinitions>
         <StackPanel
                 Orientation="Vertical"
@@ -54,6 +55,7 @@
                     x:Name="BookListView_ListView"
                     SelectionMode="Extended"
                     ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                    SelectionChanged="ListView_SelectionChanged"
                     Grid.Row="1">
                 <ListView.Resources>
                     <Style TargetType="{x:Type ListViewItem}">
@@ -77,6 +79,126 @@
                     </DataTemplate>
                 </ListView.ItemTemplate>
             </ListView>
+        </Grid>
+        <Grid Grid.Column="3">
+            <StackPanel
+                    Width="300"
+                    Orientation="Vertical"
+                    VerticalAlignment="Top"
+                    Margin="5,5,5,5"
+                    Visibility="{Binding SelectedBook.Value.Visibility, Mode=OneWay}">
+                <Label
+                        FontWeight="Bold"
+                        Foreground="SlateGray">タイトル</Label>
+                <TextBox
+                        Width="280"
+                        TextWrapping="Wrap"
+                        IsReadOnly="True"
+                        BorderThickness="0"
+                        Text="{Binding SelectedBook.Value.Title, Mode=OneWay}" />
+
+                <Label
+                        FontWeight="Bold"
+                        Foreground="SlateGray">ASIN</Label>
+                <TextBox
+                        Width="280"
+                        TextWrapping="Wrap"
+                        IsReadOnly="True"
+                        BorderThickness="0"
+                        Text="{Binding SelectedBook.Value.ASIN, Mode=OneWay}" />
+
+                <Label
+                        FontWeight="Bold"
+                        Foreground="SlateGray">著者</Label>
+                <StackPanel
+                        Width="300"
+                        Orientation="Vertical"
+                        VerticalAlignment="Top">
+                    <ItemsControl ItemsSource="{Binding SelectedBook.Value.Authors, Mode=OneWay}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <TextBox
+                                        Width="280"
+                                        TextWrapping="Wrap"
+                                        IsReadOnly="True"
+                                        BorderThickness="0"
+                                        Text="{Binding Author, Mode=OneWay}" />
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </StackPanel>
+
+                <Label
+                        FontWeight="Bold"
+                        Foreground="SlateGray">出版社</Label>
+                <StackPanel
+                        Width="300"
+                        Orientation="Vertical"
+                        VerticalAlignment="Top">
+                    <ItemsControl ItemsSource="{Binding SelectedBook.Value.Publishers, Mode=OneWay}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <TextBox
+                                        Width="280"
+                                        TextWrapping="Wrap"
+                                        IsReadOnly="True"
+                                        BorderThickness="0"
+                                        Text="{Binding Publisher, Mode=OneWay}" />
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </StackPanel>
+
+                <Label
+                        FontWeight="Bold"
+                        Foreground="SlateGray">発刊日</Label>
+                <TextBox
+                        Width="280"
+                        TextWrapping="Wrap"
+                        IsReadOnly="True"
+                        BorderThickness="0"
+                        Text="{Binding SelectedBook.Value.PublicationDateFormat, Mode=OneWay}" />
+
+                <Label
+                        FontWeight="Bold"
+                        Foreground="SlateGray">購入日</Label>
+                <TextBox
+                        Width="280"
+                        TextWrapping="Wrap"
+                        IsReadOnly="True"
+                        BorderThickness="0"
+                        Text="{Binding SelectedBook.Value.PurchaseDateFormat, Mode=OneWay}" />
+
+                <Label
+                        FontWeight="Bold"
+                        Foreground="SlateGray">TextBook Type</Label>
+                <TextBox
+                        Width="280"
+                        TextWrapping="Wrap"
+                        IsReadOnly="True"
+                        BorderThickness="0"
+                        Text="{Binding SelectedBook.Value.TextbookType, Mode=OneWay}" />
+
+                <Label
+                        FontWeight="Bold"
+                        Foreground="SlateGray">CDE Content Type</Label>
+                <TextBox
+                        Width="280"
+                        TextWrapping="Wrap"
+                        IsReadOnly="True"
+                        BorderThickness="0"
+                        Text="{Binding SelectedBook.Value.CdeContenttype, Mode=OneWay}" />
+
+                <Label
+                        FontWeight="Bold"
+                        Foreground="SlateGray">Content Type</Label>
+                <TextBox
+                        Width="280"
+                        TextWrapping="Wrap"
+                        IsReadOnly="True"
+                        BorderThickness="0"
+                        Text="{Binding SelectedBook.Value.ContentType, Mode=OneWay}" />
+            </StackPanel>
         </Grid>
     </Grid>
 </UserControl>

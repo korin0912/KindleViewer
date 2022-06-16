@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 using System.IO;
 using System.Xml;
+using System.Windows;
 using System.Windows.Media.Imaging;
 using System.Security.Cryptography;
 using Reactive.Bindings;
@@ -35,11 +36,25 @@ namespace KindleViewer
 
         public List<AuthorData> Authors { get; private set; } = new List<AuthorData>();
 
-        public List<string> Publishers { get; private set; } = new List<string>();
+        public class PublisherData
+        {
+            public string Publisher { get; private set; } = "";
+
+            public PublisherData(string publisher)
+            {
+                this.Publisher = publisher;
+            }
+        }
+
+        public List<PublisherData> Publishers { get; private set; } = new List<PublisherData>();
 
         public DateTime PublicationDate { get; private set; } = UnknownDateTime;
 
+        public string PublicationDateFormat => PublicationDate.ToString("yyyy/MM/dd");
+
         public DateTime PurchaseDate { get; private set; } = UnknownDateTime;
+
+        public string PurchaseDateFormat => PurchaseDate.ToString("yyyy/MM/dd");
 
         public string TextbookType { get; private set; } = "";
 
@@ -47,13 +62,25 @@ namespace KindleViewer
 
         public string ContentType { get; private set; } = "";
 
-        public List<string> Origins { get; private set; } = new List<string>();
+        public class OriginData
+        {
+            public string Origin { get; private set; } = "";
+
+            public OriginData(string origin)
+            {
+                this.Origin = origin;
+            }
+        }
+
+        public List<OriginData> Origins { get; private set; } = new List<OriginData>();
 
         public bool IsShow { get; private set; } = false;
 
         public ReactiveProperty<BitmapImage> CoverImage { get; private set; } = new ReactiveProperty<BitmapImage>();
 
         public Uri ReaderURI { get; private set; } = null;
+
+        public Visibility Visibility { get; private set; } = Visibility.Hidden;
 
         /// <summary>
         /// コンストラクタ
@@ -93,7 +120,7 @@ namespace KindleViewer
 
                 XmlUtils.SelectNodes(xmlNode, "publishers/publisher", node =>
                 {
-                    Publishers.Add(XmlUtils.GetInnerText(node));
+                    Publishers.Add(new PublisherData(XmlUtils.GetInnerText(node)));
                 });
 
                 XmlUtils.SelectNode(xmlNode, "publication_date", node =>
@@ -131,11 +158,13 @@ namespace KindleViewer
 
                 XmlUtils.SelectNodes(xmlNode, "origins/origin", node =>
                 {
-                    Origins.Add(XmlUtils.GetInnerText(node));
+                    Origins.Add(new OriginData(XmlUtils.GetInnerText(node)));
                 });
 
                 ReaderURI = new Uri($"{Kindle.KindleCloudReaderUriPrefix}{ASIN}?language={System.Globalization.CultureInfo.CurrentCulture.Name}");
                 // ReaderURI = new Uri("https://www.google.co.jp");
+
+                Visibility = Visibility.Visible;
             }
             catch (Exception ex)
             {

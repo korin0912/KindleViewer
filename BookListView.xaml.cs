@@ -7,6 +7,7 @@ using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Data;
 using System.Threading.Tasks;
+using Reactive.Bindings;
 
 namespace KindleViewer
 {
@@ -26,11 +27,13 @@ namespace KindleViewer
 
         private List<Book> showBooks = new List<Book>();
 
+        public ReactiveProperty<Book> SelectedBook { get; private set; } = new ReactiveProperty<Book>(new Book());
+
         public BookListView(Kindle kindle)
         {
             Log.Info("bookList start");
 
-            DataContext = kindle;
+            DataContext = this;
 
             this.kindle = kindle;
 
@@ -92,7 +95,7 @@ namespace KindleViewer
                             book.Title.IndexOf(filterText) != -1 ||
                             book.TitlePronunciation.IndexOf(filterText) != -1 ||
                             book.Authors.Any(a => a.Author.IndexOf(filterText) != -1 || a.Pronunciation.IndexOf(filterText) != -1) ||
-                            book.Publishers.Any(p => p.IndexOf(filterText) != -1)
+                            book.Publishers.Any(p => p.Publisher.IndexOf(filterText) != -1)
                         ;
 
                     if (ret)
@@ -300,6 +303,24 @@ namespace KindleViewer
             }
 
             (Application.Current.MainWindow as MainWindow)?.AddLayoutDocument(book.Title, new ReaderWewbView(book));
+        }
+
+        /// <summary>
+        /// イベント - リストビューアイテム選択
+        /// </summary>
+        /// <param name="s"></param>
+        /// <param name="e"></param>
+        private void ListView_SelectionChanged(object s, SelectionChangedEventArgs e)
+        {
+            var book = listView.SelectedItem as Book;
+            if (book != null)
+            {
+                SelectedBook.Value = book;
+            }
+            else
+            {
+                SelectedBook.Value = new Book();
+            }
         }
 
         /// <summary>

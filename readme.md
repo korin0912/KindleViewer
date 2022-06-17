@@ -68,6 +68,17 @@ Kindle 本を閲覧するツール
   - `https://read.amazon.co.jp/manga/{ASIN}?language={LANG}`
 - アプリ側で ID/パスワード管理はしないで、WebView 側で Amazon の認証にまかせる
 
+## シリーズ
+
+- `https://www.amazon.co.jp/kindle-dbs/productPage/ajax/seriesAsinCarouselCard?asin={ASIN}&count={取得件数}&offset={巻数オフセット}` でシリーズ情報のHTMLが取得できる
+  - Amazon にログインしていない状態でも利用可能
+  - が、正規のアクセスではないのでアクセス制限や、アカウント制限が怖いから利用しない
+  - また、原則としてもセキュリティの観点からアプリ側で通信をさせない
+- タイトル仮名読み(title pronunciation)が `*****{巻数数値1～3桁}*****` のようになっていることが多い
+  - 数値部分を巻数として利用する
+  - 数値より前半をトリミングしたタイトル仮名読みとして利用する
+  - 誤判定も多く出る可能性は高いが、全体の8割くらいはカバーできると思われる
+
 ### 利用パッケージ
 
 | パッケージ名                                                                        | 用途                 |

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.IO;
 using System.Xml;
 using System.Windows;
@@ -81,6 +82,10 @@ namespace KindleViewer
         public Uri ReaderURI { get; private set; } = null;
 
         public Visibility Visibility { get; private set; } = Visibility.Hidden;
+
+        public string TitlePronunciationTrim { get; private set; } = "";
+
+        public int Volume = 0;
 
         /// <summary>
         /// コンストラクタ
@@ -163,6 +168,26 @@ namespace KindleViewer
 
                 ReaderURI = new Uri($"{Kindle.KindleCloudReaderUriPrefix}{ASIN}?language={System.Globalization.CultureInfo.CurrentCulture.Name}");
                 // ReaderURI = new Uri("https://www.google.co.jp");
+
+                // タイトル仮名読み整形と巻数
+                if (!string.IsNullOrEmpty(TitlePronunciation))
+                {
+                    TitlePronunciationTrim = TitlePronunciation.Trim();
+                    var match = Regex.Match(TitlePronunciationTrim, "([0-9]{1,3})");
+                    if (match != null && match != Match.Empty)
+                    {
+                        Volume = int.Parse(TitlePronunciationTrim.Substring(match.Index, match.Length), System.Globalization.NumberStyles.Integer);
+                        TitlePronunciationTrim = TitlePronunciationTrim.Substring(0, match.Index + 1);
+                    }
+                    else
+                    {
+                        TitlePronunciationTrim = TitlePronunciationTrim.Split(' ')[0];
+                    }
+                }
+                else
+                {
+                    TitlePronunciationTrim = Title;
+                }
 
                 Visibility = Visibility.Visible;
             }

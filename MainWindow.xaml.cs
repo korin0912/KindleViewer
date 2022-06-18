@@ -21,8 +21,6 @@ namespace KindleViewer
     /// </summary>
     public partial class MainWindow : MahApps.Metro.Controls.MetroWindow
     {
-        private Kindle kindle = new Kindle();
-
         public ReactiveCommand DocumentCloseCommand { get; } = new ReactiveCommand();
 
         public AvalonDock.DockingManager ADDockingManager { get; private set; } = null;
@@ -34,7 +32,7 @@ namespace KindleViewer
 
             ImageLoader.Instance.Start();
 
-            kindle.ReadCache();
+            Kindle.Instance.ReadCache();
 
             DataContext = this;
 
@@ -56,8 +54,8 @@ namespace KindleViewer
                     }
                 });
 
-                // 本一覧追加
-                AddLayoutDocument("一覧", new BookListView(kindle), true, false);
+                // 本一覧ドキュメント追加
+                AddLayoutDocument("一覧", new BookListView(Kindle.Instance), true, false);
             };
 
             this.Activated += (s, e) =>
@@ -122,6 +120,16 @@ namespace KindleViewer
                     break;
                 }
             }
+        }
+
+        /// <summary>
+        /// アプリ終了
+        /// </summary>
+        /// <param name="s"></param>
+        /// <param name="e"></param>
+        private void MenuButton_Quit(object s, RoutedEventArgs e)
+        {
+            this.Close();
         }
     }
 }

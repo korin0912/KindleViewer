@@ -14,13 +14,16 @@ namespace KindleViewer
 
         public static readonly string KindleCloudReaderUriPrefix = "https://read.amazon.co.jp/manga/";
 
-        private List<Book> books = new List<Book>();
-        public Book[] Books => books.ToArray();
+        private static Kindle _singleton = new Kindle();
+
+        public static Kindle Instance => _singleton;
+
+        public Dictionary<string, Book> Books { get; private set; } = new Dictionary<string, Book>();
 
         /// <summary>
         /// コンストラクタ
         /// </summary>
-        public Kindle()
+        private Kindle()
         {
         }
 
@@ -32,24 +35,22 @@ namespace KindleViewer
         {
             Log.Info($"read cache start.");
 
+            // XML 読み込み
             return XmlUtils.Load(XMLCacheFilePath, rootNode =>
             {
                 XmlUtils.SelectNodes(rootNode, "response/add_update_list/meta_data", node =>
                 {
-                    // // デバッグ用
-                    // if (books.Count >= 500)
-                    // {
-                    //     return;
-                    // }
-
                     var book = new Book();
-                    if (book.ParseXML(books.Count, node))
+                    if (book.ParseXML(Books.Count, node))
                     {
-                        books.Add(book);
+                        if (!Books.ContainsKey(book.ASIN))
+                        {
+                            Books.Add(book.ASIN, book);
+                        }
                     }
                 });
 
-                Log.Info($"read cache end. {books.Count}");
+                Log.Info($"read cache end. {Books.Count}");
             });
         }
     }

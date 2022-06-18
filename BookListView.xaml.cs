@@ -59,6 +59,10 @@ namespace KindleViewer
                     return;
                 }
 
+                var books = GetSortBooksByPurchaseDate(kindle.Books.Values, ListSortDirection.Descending);
+                Log.Info($"listView set books {books.Count}");
+                listView.ItemsSource = books;
+
                 // サイズ変わったら更新
                 listView.SizeChanged += (s, e) =>
                 {
@@ -76,11 +80,6 @@ namespace KindleViewer
                         UpdateBooks(GetShowRange());
                     };
                 }
-
-                // ListViewアイテムを設定
-                var books = GetSortBooksByPurchaseDate(kindle.Books, ListSortDirection.Descending);
-                Log.Info($"listView set books {books.Count}");
-                listView.ItemsSource = books;
 
                 // フィルタ設定
                 showBooks.Clear();

@@ -12,30 +12,43 @@
         Height="810"
         Width="1440"
         TitleCharacterCasing="Normal">
-    <Window.InputBindings>
+    <mah:MetroWindow.InputBindings>
         <KeyBinding
                 Gesture="Ctrl+W"
                 Command="{Binding DocumentCloseCommand}" />
-    </Window.InputBindings>
-    <avalonDock:DockingManager
-            x:Name="adDockingManager"
-            AllowMixedOrientation="True">
-        <avalonDock:DockingManager.Resources>
-            <Style TargetType="{x:Type avalonDock:LayoutDocumentTabItem}">
-                <Setter
-                        Property="Width"
-                        Value="100" />
-                <Setter
-                        Property="HorizontalContentAlignment"
-                        Value="Center" />
-            </Style>
-        </avalonDock:DockingManager.Resources>
-        <avalonDock:LayoutRoot>
-            <avalonDock:LayoutPanel Orientation="Vertical">
-                <avalonDock:LayoutPanel Orientation="Horizontal">
-                    <avalonDock:LayoutDocumentPane x:Name="adLayoutDocumentPane" />
+    </mah:MetroWindow.InputBindings>
+    <DockPanel LastChildFill="True">
+        <Menu DockPanel.Dock="Top">
+            <MenuItem Header="ファイル">
+                <MenuItem
+                        Header="終了"
+                        FlowDirection="LeftToRight"
+                        Click="MenuButton_Quit" />
+            </MenuItem>
+            <MenuItem Header="ツール">
+                <MenuItem Header="全ての本のシリーズ情報を自動生成" />
+            </MenuItem>
+        </Menu>
+        <avalonDock:DockingManager
+                x:Name="adDockingManager"
+                AllowMixedOrientation="True">
+            <avalonDock:DockingManager.Resources>
+                <Style TargetType="{x:Type avalonDock:LayoutDocumentTabItem}">
+                    <Setter
+                            Property="Width"
+                            Value="100" />
+                    <Setter
+                            Property="HorizontalContentAlignment"
+                            Value="Center" />
+                </Style>
+            </avalonDock:DockingManager.Resources>
+            <avalonDock:LayoutRoot>
+                <avalonDock:LayoutPanel Orientation="Vertical">
+                    <avalonDock:LayoutPanel Orientation="Horizontal">
+                        <avalonDock:LayoutDocumentPane x:Name="adLayoutDocumentPane" />
+                    </avalonDock:LayoutPanel>
                 </avalonDock:LayoutPanel>
-            </avalonDock:LayoutPanel>
-        </avalonDock:LayoutRoot>
-    </avalonDock:DockingManager>
+            </avalonDock:LayoutRoot>
+        </avalonDock:DockingManager>
+    </DockPanel>
 </mah:MetroWindow>

@@ -62,7 +62,7 @@ namespace KindleViewer
                 if (isDocumentOpen)
                 {
                     var doc = new BookInformationDocument(book);
-                    MainWindow.AddDocument("本情報", doc, false, true, layoutDocument =>
+                    MainWindow.AddDocument("本情報", doc, false, layoutDocument =>
                     {
                         layoutDocument.FloatingWidth = 300;
                         layoutDocument.FloatingHeight = 600;

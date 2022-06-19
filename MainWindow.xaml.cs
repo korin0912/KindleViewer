@@ -55,7 +55,10 @@ namespace KindleViewer
                 });
 
                 // 本一覧ドキュメント追加
-                AddDocument("一覧", new BookshelfDocument(), true, false);
+                AddDocument("一覧", new BookshelfDocument(), true, layoutDocument =>
+                {
+                    layoutDocument.CanClose = false;
+                });
             };
         }
 
@@ -64,8 +67,9 @@ namespace KindleViewer
         /// </summary>
         /// <param name="title"></param>
         /// <param name="content"></param>
-        /// <param name="canClose"></param>
-        public static void AddDocument(string title, object content, bool actived = true, bool canClose = true, Action<AvalonDock.Layout.LayoutDocument> initAction = null)
+        /// <param name="actived"></param>
+        /// <param name="initAction"></param>
+        public static void AddDocument(string title, object content, bool actived, Action<AvalonDock.Layout.LayoutDocument> initAction)
         {
             var mainWindow = (Application.Current.MainWindow as MainWindow);
             if (mainWindow == null)
@@ -80,11 +84,11 @@ namespace KindleViewer
                 return;
             }
 
-            Log.Info($"add layoutDocument. {title}, {content.GetType().Name}, {actived}, {canClose}");
+            Log.Info($"add layoutDocument. {title}, {content.GetType().Name}, {actived}");
             var layoutDocument = new AvalonDock.Layout.LayoutDocument();
             layoutDocument.Title = title;
             layoutDocument.Content = content;
-            layoutDocument.CanClose = canClose;
+
             mainWindow.ADLayoutDocumentPane.Children.Add(layoutDocument);
 
             initAction?.Invoke(layoutDocument);

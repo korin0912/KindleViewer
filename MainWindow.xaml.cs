@@ -50,61 +50,72 @@ namespace KindleViewer
                 {
                     if (ADDockingManager.ActiveContent != null)
                     {
-                        CloseLayoutDocument(ADDockingManager.ActiveContent);
+                        CloseDocument(ADDockingManager.ActiveContent);
                     }
                 });
 
                 // 本一覧ドキュメント追加
-                AddLayoutDocument("一覧", new BookListView(Kindle.Instance), true, false);
-            };
-
-            this.Activated += (s, e) =>
-            {
-                Log.Info($"MainWindows showed.");
+                AddDocument("一覧", new BookshelfDocument(), true, false);
             };
         }
 
         /// <summary>
-        /// LayoutDocument 追加
+        /// ドキュメント追加
         /// </summary>
         /// <param name="title"></param>
         /// <param name="content"></param>
         /// <param name="canClose"></param>
-        public void AddLayoutDocument(string title, object content, bool actived = true, bool canClose = true)
+        public static void AddDocument(string title, object content, bool actived = true, bool canClose = true, Action<AvalonDock.Layout.LayoutDocument> initAction = null)
         {
+            var mainWindow = (Application.Current.MainWindow as MainWindow);
+            if (mainWindow == null)
+            {
+                Log.Warning("MainWindow is null.");
+                return;
+            }
+
             if (content == null)
             {
                 Log.Warning("content is null.");
                 return;
             }
 
-            Log.Info($"add layoutDocument. {content.GetType().Name}");
+            Log.Info($"add layoutDocument. {title}, {content.GetType().Name}, {actived}, {canClose}");
             var layoutDocument = new AvalonDock.Layout.LayoutDocument();
             layoutDocument.Title = title;
             layoutDocument.Content = content;
             layoutDocument.CanClose = canClose;
-            ADLayoutDocumentPane.Children.Add(layoutDocument);
+            mainWindow.ADLayoutDocumentPane.Children.Add(layoutDocument);
 
-            // 追加と同時にアクティブにする
+            initAction?.Invoke(layoutDocument);
+
+            // 追加と同時にアクティブ
             if (actived)
             {
-                ADDockingManager.ActiveContent = content;
+                mainWindow.ADDockingManager.ActiveContent = content;
             }
         }
 
         /// <summary>
-        /// LayoutDocument 閉じる
+        /// ドキュメント閉じる
         /// </summary>
         /// <param name="content"></param>
-        public void CloseLayoutDocument(object content)
+        public static void CloseDocument(object content)
         {
+            var mainWindow = (Application.Current.MainWindow as MainWindow);
+            if (mainWindow == null)
+            {
+                Log.Warning("MainWindow is null.");
+                return;
+            }
+
             if (content == null)
             {
                 Log.Warning("content is null.");
                 return;
             }
 
-            foreach (var doc in ADLayoutDocumentPane.Children)
+            foreach (var doc in mainWindow.ADLayoutDocumentPane.Children)
             {
                 // 閉じるボタンが出てないと閉じれない
                 if (!doc.CanClose)
@@ -120,6 +131,30 @@ namespace KindleViewer
                     break;
                 }
             }
+        }
+
+        /// <summary>
+        /// ドキュメント検索
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        public static T FindDocument<T>() where T : class
+        {
+            var mainWindow = (Application.Current.MainWindow as MainWindow);
+            if (mainWindow == null)
+            {
+                Log.Warning("MainWindow is null.");
+                return null;
+            }
+
+            foreach (var doc in mainWindow.ADLayoutDocumentPane.Children)
+            {
+                if (doc.Content is T)
+                {
+                    return doc.Content as T;
+                }
+            }
+
+            return null;
         }
 
         /// <summary>

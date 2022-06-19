@@ -1,0 +1,119 @@
+﻿<UserControl
+        x:Class="KindleViewer.BookInformationDocument"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:KindleViewer"
+        mc:Ignorable="d">
+    <Grid>
+        <ScrollViewer VerticalScrollBarVisibility="Auto">
+            <StackPanel
+                    Orientation="Vertical"
+                    VerticalAlignment="Top"
+                    Margin="5,5,5,5"
+                    Visibility="{Binding ShowBook.Value.Visibility, Mode=OneWay}">
+                <Label
+                        FontWeight="Bold"
+                        Foreground="SlateGray">タイトル</Label>
+                <TextBox
+                        TextWrapping="Wrap"
+                        IsReadOnly="True"
+                        BorderThickness="0"
+                        Text="{Binding ShowBook.Value.Title, Mode=OneWay}" />
+
+                <Label
+                        FontWeight="Bold"
+                        Foreground="SlateGray">ASIN</Label>
+                <TextBox
+                        TextWrapping="Wrap"
+                        IsReadOnly="True"
+                        BorderThickness="0"
+                        Text="{Binding ShowBook.Value.ASIN, Mode=OneWay}" />
+
+                <Label
+                        FontWeight="Bold"
+                        Foreground="SlateGray">著者</Label>
+                <StackPanel
+                        Orientation="Vertical"
+                        VerticalAlignment="Top">
+                    <ItemsControl ItemsSource="{Binding ShowBook.Value.Authors, Mode=OneWay}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <TextBox
+                                        TextWrapping="Wrap"
+                                        IsReadOnly="True"
+                                        BorderThickness="0"
+                                        Text="{Binding Author, Mode=OneWay}" />
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </StackPanel>
+
+                <Label
+                        FontWeight="Bold"
+                        Foreground="SlateGray">出版社</Label>
+                <StackPanel
+                        Orientation="Vertical"
+                        VerticalAlignment="Top">
+                    <ItemsControl ItemsSource="{Binding ShowBook.Value.Publishers, Mode=OneWay}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <TextBox
+                                        TextWrapping="Wrap"
+                                        IsReadOnly="True"
+                                        BorderThickness="0"
+                                        Text="{Binding Publisher, Mode=OneWay}" />
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </StackPanel>
+
+                <Label
+                        FontWeight="Bold"
+                        Foreground="SlateGray">発刊日</Label>
+                <TextBox
+                        TextWrapping="Wrap"
+                        IsReadOnly="True"
+                        BorderThickness="0"
+                        Text="{Binding ShowBook.Value.PublicationDateFormat, Mode=OneWay}" />
+
+                <Label
+                        FontWeight="Bold"
+                        Foreground="SlateGray">購入日</Label>
+                <TextBox
+                        TextWrapping="Wrap"
+                        IsReadOnly="True"
+                        BorderThickness="0"
+                        Text="{Binding ShowBook.Value.PurchaseDateFormat, Mode=OneWay}" />
+
+                <Label
+                        FontWeight="Bold"
+                        Foreground="SlateGray">TextBook Type</Label>
+                <TextBox
+                        TextWrapping="Wrap"
+                        IsReadOnly="True"
+                        BorderThickness="0"
+                        Text="{Binding ShowBook.Value.TextbookType, Mode=OneWay}" />
+
+                <Label
+                        FontWeight="Bold"
+                        Foreground="SlateGray">CDE Content Type</Label>
+                <TextBox
+                        TextWrapping="Wrap"
+                        IsReadOnly="True"
+                        BorderThickness="0"
+                        Text="{Binding ShowBook.Value.CdeContenttype, Mode=OneWay}" />
+
+                <Label
+                        FontWeight="Bold"
+                        Foreground="SlateGray">Content Type</Label>
+                <TextBox
+                        TextWrapping="Wrap"
+                        IsReadOnly="True"
+                        BorderThickness="0"
+                        Text="{Binding ShowBook.Value.ContentType, Mode=OneWay}" />
+            </StackPanel>
+        </ScrollViewer>
+    </Grid>
+</UserControl>

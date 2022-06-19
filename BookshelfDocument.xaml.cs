@@ -7,14 +7,11 @@ using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Data;
 using System.Threading.Tasks;
-using Reactive.Bindings;
 
 namespace KindleViewer
 {
-    public partial class BookListView : UserControl
+    public partial class BookshelfDocument : UserControl
     {
-        private Kindle kindle = null;
-
         private bool isInitialized = false;
         private ListView listView = null;
         private TreeView treeView = null;
@@ -28,15 +25,11 @@ namespace KindleViewer
 
         private List<Book> showBooks = new List<Book>();
 
-        public ReactiveProperty<Book> SelectedBook { get; private set; } = new ReactiveProperty<Book>(new Book());
-
-        public BookListView(Kindle kindle)
+        public BookshelfDocument()
         {
             Log.Info("bookList start");
 
             DataContext = this;
-
-            this.kindle = kindle;
 
             InitializeComponent();
 
@@ -59,7 +52,7 @@ namespace KindleViewer
                     return;
                 }
 
-                var books = GetSortBooksByPurchaseDate(kindle.Books.Values, ListSortDirection.Descending);
+                var books = GetSortBooksByPurchaseDate(Kindle.Instance.Books.Values, ListSortDirection.Descending);
                 Log.Info($"listView set books {books.Count}");
                 listView.ItemsSource = books;
 
@@ -317,7 +310,7 @@ namespace KindleViewer
                 return;
             }
 
-            (Application.Current.MainWindow as MainWindow)?.AddLayoutDocument(book.Title, new ReaderWewbView(book));
+            MainWindow.AddDocument(book.Title, new ReaderWewbView(book));
         }
 
         /// <summary>
@@ -327,15 +320,17 @@ namespace KindleViewer
         /// <param name="e"></param>
         private void ListView_SelectionChanged(object s, SelectionChangedEventArgs e)
         {
-            var book = listView.SelectedItem as Book;
-            if (book != null)
-            {
-                SelectedBook.Value = book;
-            }
-            else
-            {
-                SelectedBook.Value = new Book();
-            }
+            BookInformationDocument.Show(listView.SelectedItem as Book, false);
+        }
+
+        /// <summary>
+        /// イベント - リストビューコンテキストメニュー - 本情報
+        /// </summary>
+        /// <param name="s"></param>
+        /// <param name="e"></param>
+        private void ListView_ContextMenu_BookInformation(object s, RoutedEventArgs e)
+        {
+            BookInformationDocument.Show(listView.SelectedItem as Book, true);
         }
 
         /// <summary>
@@ -346,28 +341,6 @@ namespace KindleViewer
         private void TreeView_SelectedItemChanged(object s, RoutedPropertyChangedEventArgs<Object> e)
         {
             var selectedItem = treeView.SelectedItem;
-        }
-
-        /// <summary>
-        /// イベント - ソート - 名前順
-        /// </summary>
-        /// <param name="s"></param>
-        /// <param name="e"></param>
-        private void SortByName_ButtonClick(object s, EventArgs e)
-        {
-            Log.Info("SortByName_ButtonClick");
-            SetBooksSort(GetSortBooksByTitle, ListSortDirection.Ascending);
-        }
-
-        /// <summary>
-        /// イベント - ソート - 購入日順
-        /// </summary>
-        /// <param name="s"></param>
-        /// <param name="e"></param>
-        private void SortByPurchase_ButtonClick(object s, EventArgs e)
-        {
-            Log.Info("SortByPurchase_ButtonClick");
-            SetBooksSort(GetSortBooksByPurchaseDate, ListSortDirection.Descending);
         }
 
         /// <summary>

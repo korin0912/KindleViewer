@@ -1,0 +1,23 @@
+﻿<Window
+        x:Class="KindleViewer.BookshelfContextMenuWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:KindleViewer"
+        xmlns:avalonDock="https://github.com/Dirkster99/AvalonDock"
+        mc:Ignorable="d"
+        WindowStyle="None"
+        ResizeMode="NoResize"
+        Margin="0,0,0,0">
+    <Menu>
+        <Menu.ItemsPanel>
+            <ItemsPanelTemplate>
+                <VirtualizingStackPanel Orientation="Vertical" />
+            </ItemsPanelTemplate>
+        </Menu.ItemsPanel>
+        <MenuItem
+                Header="本情報"
+                Click="BookInformationMenuItem_Click" />
+    </Menu>
+</Window>

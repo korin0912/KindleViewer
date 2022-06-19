@@ -15,7 +15,7 @@ namespace KindleViewer
         /// <summary>
         /// コンストラクタ
         /// </summary>
-        public BookInformationDocument(Book book)
+        private BookInformationDocument(Book book)
         {
             ShowBook.Value = book;
 

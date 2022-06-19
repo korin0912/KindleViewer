@@ -82,6 +82,12 @@
                 <ListView.Resources>
                     <Style TargetType="{x:Type ListViewItem}">
                         <EventSetter
+                                Event="PreviewMouseRightButtonUp"
+                                Handler="ListViewItem_PreviewMouseRightButtonUp" />
+                                <EventSetter
+                                Event="PreviewMouseRightButtonDown"
+                                Handler="ListViewItem_PreviewMouseRightButtonDown" />
+                        <EventSetter
                                 Event="MouseDoubleClick"
                                 Handler="ListViewItem_MouseDoubleClick" />
                         <EventSetter

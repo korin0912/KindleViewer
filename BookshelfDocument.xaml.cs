@@ -289,6 +289,35 @@ namespace KindleViewer
         private Func<Func<Book, T>, IOrderedEnumerable<Book>> GetSortBooksOrder<T>(IEnumerable<Book> books, ListSortDirection direction)
             => (direction == ListSortDirection.Ascending) ? books.OrderBy : books.OrderByDescending;
 
+        private Book listViewItemRightButtonBook = null;
+
+        /// <summary>
+        /// イベント - リストビューアイテム - マウス右ダウン
+        /// </summary>
+        /// <param name="s"></param>
+        /// <param name="e"></param>
+        private void ListViewItem_PreviewMouseRightButtonDown(object s, MouseButtonEventArgs e)
+        {
+            Log.Info($"ListViewItem_PreviewMouseRightButtonDown");
+            listViewItemRightButtonBook = (s as ListViewItem).Content as Book;
+        }
+
+        /// <summary>
+        /// イベント - リストビューアイテム - マウス右アップ
+        /// </summary>
+        /// <param name="s"></param>
+        /// <param name="e"></param>
+        private void ListViewItem_PreviewMouseRightButtonUp(object s, MouseButtonEventArgs e)
+        {
+            Log.Info($"ListViewItem_PreviewMouseRightButtonUp");
+            var book = (s as ListViewItem).Content as Book;
+            if (book == listViewItemRightButtonBook)
+            {
+                BookshelfContextMenuWindow.Show(book);
+            }
+            listViewItemRightButtonBook = null;
+        }
+
         /// <summary>
         /// イベント - リストビューアイテム - マウスダブルクリック
         /// </summary>

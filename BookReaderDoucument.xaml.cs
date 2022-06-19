@@ -13,7 +13,7 @@ namespace KindleViewer
         /// コンストラクタ
         /// </summary>
         /// <param name="book"></param>
-        public BookReaderDoucument(Book book)
+        private BookReaderDoucument(Book book)
         {
             this.book = book;
 

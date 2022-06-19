@@ -1,4 +1,4 @@
-﻿<mah:MetroWindow
+﻿<Window
         x:Class="KindleViewer.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
@@ -6,17 +6,15 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:KindleViewer"
         xmlns:avalonDock="https://github.com/Dirkster99/AvalonDock"
-        xmlns:mah="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro"
         mc:Ignorable="d"
         Title="Kindle Viewer"
         Height="810"
-        Width="1440"
-        TitleCharacterCasing="Normal">
-    <mah:MetroWindow.InputBindings>
+        Width="1440">
+    <Window.InputBindings>
         <KeyBinding
                 Gesture="Ctrl+W"
                 Command="{Binding DocumentCloseCommand}" />
-    </mah:MetroWindow.InputBindings>
+    </Window.InputBindings>
     <DockPanel LastChildFill="True">
         <Menu DockPanel.Dock="Top">
             <MenuItem Header="ファイル">
@@ -55,4 +53,4 @@
             </avalonDock:LayoutRoot>
         </avalonDock:DockingManager>
     </DockPanel>
-</mah:MetroWindow>
+</Window>

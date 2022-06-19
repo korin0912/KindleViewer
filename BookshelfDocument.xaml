@@ -84,6 +84,9 @@
                         <EventSetter
                                 Event="MouseDoubleClick"
                                 Handler="ListViewItem_MouseDoubleClick" />
+                        <EventSetter
+                                Event="KeyDown"
+                                Handler="ListViewItem_KeyDown" />
                     </Style>
                 </ListView.Resources>
                 <ListView.ItemsPanel>
@@ -100,13 +103,6 @@
                                 VerticalAlignment="Top"></StackPanel>
                     </DataTemplate>
                 </ListView.ItemTemplate>
-                <ListView.ContextMenu>
-                    <ContextMenu>
-                        <MenuItem
-                                Header="本情報"
-                                Click="ListView_ContextMenu_BookInformation" />
-                    </ContextMenu>
-                </ListView.ContextMenu>
             </ListView>
         </Grid>
     </Grid>

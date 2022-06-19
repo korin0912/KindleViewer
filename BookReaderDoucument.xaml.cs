@@ -35,7 +35,10 @@ namespace KindleViewer
                 return;
             }
 
-            MainWindow.AddDocument(book.Title, new BookReaderDoucument(book), true, null);
+            MainWindow.AddDocument(book.Title, new BookReaderDoucument(book), true, layoutDocument =>
+            {
+                MainWindow.Instance.ADLayoutDocumentPane.Children.Add(layoutDocument);
+            });
         }
     }
 }

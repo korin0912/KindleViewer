@@ -9,6 +9,9 @@ namespace KindleViewer
 
         public ReactiveProperty<Book> ShowBook { get; private set; } = new ReactiveProperty<Book>(new Book());
 
+        private bool isResize = false;
+        private AvalonDock.Layout.LayoutDocumentPane resizeLayoutDocumentPane = null;
+
         /// <summary>
         /// コンストラクタ
         /// </summary>
@@ -22,6 +25,12 @@ namespace KindleViewer
             {
                 Log.Info($"load book information.");
                 Current = this;
+
+                if (isResize && resizeLayoutDocumentPane != null)
+                {
+                    isResize = false;
+                    resizeLayoutDocumentPane.DockWidth = new System.Windows.GridLength(300);
+                }
             };
 
             this.Unloaded += (s, e) =>
@@ -64,9 +73,19 @@ namespace KindleViewer
                     var doc = new BookInformationDocument(book);
                     MainWindow.AddDocument("本情報", doc, false, layoutDocument =>
                     {
-                        layoutDocument.FloatingWidth = 300;
-                        layoutDocument.FloatingHeight = 600;
-                        layoutDocument.Float();
+                        var layoutDocumentPane = new AvalonDock.Layout.LayoutDocumentPane(layoutDocument);
+                        layoutDocumentPane.Children.CollectionChanged += (s, e) =>
+                        {
+                            // 子が一個もなくなったら消す
+                            if (layoutDocumentPane.Children.Count <= 0)
+                            {
+                                MainWindow.Instance.ADLayoutaPanelHorizontal.Children.Remove(layoutDocumentPane);
+                            }
+                        };
+                        MainWindow.Instance.ADLayoutaPanelHorizontal.Children.Add(layoutDocumentPane);
+
+                        doc.isResize = true;
+                        doc.resizeLayoutDocumentPane = layoutDocumentPane;
                     });
                 }
             }

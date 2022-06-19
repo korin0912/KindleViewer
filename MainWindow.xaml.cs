@@ -21,9 +21,13 @@ namespace KindleViewer
     /// </summary>
     public partial class MainWindow : MahApps.Metro.Controls.MetroWindow
     {
+        public static MainWindow Instance { get; private set; } = null;
+
         public ReactiveCommand DocumentCloseCommand { get; } = new ReactiveCommand();
 
         public AvalonDock.DockingManager ADDockingManager { get; private set; } = null;
+        public AvalonDock.Layout.LayoutPanel ADLayoutaPanelVertical { get; private set; } = null;
+        public AvalonDock.Layout.LayoutPanel ADLayoutaPanelHorizontal { get; private set; } = null;
         public AvalonDock.Layout.LayoutDocumentPane ADLayoutDocumentPane { get; private set; } = null;
 
         public MainWindow()
@@ -43,7 +47,11 @@ namespace KindleViewer
                 Log.Info($"MainWindow loaded.");
 
                 ADDockingManager = this.FindName("adDockingManager") as AvalonDock.DockingManager;
+                ADLayoutaPanelVertical = this.FindName("adLayoutPanelVertical") as AvalonDock.Layout.LayoutPanel;
+                ADLayoutaPanelHorizontal = this.FindName("adLayoutPanelHorizontal") as AvalonDock.Layout.LayoutPanel;
                 ADLayoutDocumentPane = this.FindName("adLayoutDocumentPane") as AvalonDock.Layout.LayoutDocumentPane;
+
+                Instance = this;
 
                 // ドキュメント閉じる
                 DocumentCloseCommand.Subscribe(_ =>
@@ -58,6 +66,7 @@ namespace KindleViewer
                 AddDocument("一覧", new BookshelfDocument(), true, layoutDocument =>
                 {
                     layoutDocument.CanClose = false;
+                    MainWindow.Instance.ADLayoutDocumentPane.Children.Add(layoutDocument);
                 });
             };
         }
@@ -71,8 +80,7 @@ namespace KindleViewer
         /// <param name="initAction"></param>
         public static void AddDocument(string title, object content, bool actived, Action<AvalonDock.Layout.LayoutDocument> initAction)
         {
-            var mainWindow = (Application.Current.MainWindow as MainWindow);
-            if (mainWindow == null)
+            if (MainWindow.Instance == null)
             {
                 Log.Warning("MainWindow is null.");
                 return;
@@ -84,19 +92,17 @@ namespace KindleViewer
                 return;
             }
 
-            Log.Info($"add layoutDocument. {title}, {content.GetType().Name}, {actived}");
+            Log.Info($"add LayoutDocument. {title}, {content.GetType().Name}, {actived}");
             var layoutDocument = new AvalonDock.Layout.LayoutDocument();
             layoutDocument.Title = title;
             layoutDocument.Content = content;
-
-            mainWindow.ADLayoutDocumentPane.Children.Add(layoutDocument);
 
             initAction?.Invoke(layoutDocument);
 
             // 追加と同時にアクティブ
             if (actived)
             {
-                mainWindow.ADDockingManager.ActiveContent = content;
+                MainWindow.Instance.ADDockingManager.ActiveContent = content;
             }
         }
 
@@ -106,8 +112,7 @@ namespace KindleViewer
         /// <param name="content"></param>
         public static void CloseDocument(object content)
         {
-            var mainWindow = (Application.Current.MainWindow as MainWindow);
-            if (mainWindow == null)
+            if (MainWindow.Instance == null)
             {
                 Log.Warning("MainWindow is null.");
                 return;
@@ -119,7 +124,7 @@ namespace KindleViewer
                 return;
             }
 
-            foreach (var doc in mainWindow.ADLayoutDocumentPane.Children)
+            foreach (var doc in MainWindow.Instance.ADLayoutDocumentPane.Children)
             {
                 // 閉じるボタンが出てないと閉じれない
                 if (!doc.CanClose)
@@ -143,14 +148,13 @@ namespace KindleViewer
         /// <typeparam name="T"></typeparam>
         public static T FindDocument<T>() where T : class
         {
-            var mainWindow = (Application.Current.MainWindow as MainWindow);
-            if (mainWindow == null)
+            if (MainWindow.Instance == null)
             {
                 Log.Warning("MainWindow is null.");
                 return null;
             }
 
-            foreach (var doc in mainWindow.ADLayoutDocumentPane.Children)
+            foreach (var doc in MainWindow.Instance.ADLayoutDocumentPane.Children)
             {
                 if (doc.Content is T)
                 {

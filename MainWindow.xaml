@@ -8,7 +8,7 @@
         xmlns:avalonDock="https://github.com/Dirkster99/AvalonDock"
         xmlns:mah="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro"
         mc:Ignorable="d"
-        Title="KindleViewer"
+        Title="Kindle Viewer"
         Height="810"
         Width="1440"
         TitleCharacterCasing="Normal">
@@ -43,8 +43,12 @@
                 </Style>
             </avalonDock:DockingManager.Resources>
             <avalonDock:LayoutRoot>
-                <avalonDock:LayoutPanel Orientation="Vertical">
-                    <avalonDock:LayoutPanel Orientation="Horizontal">
+                <avalonDock:LayoutPanel
+                        Orientation="Vertical"
+                        x:Name="adLayoutPanelVertical">
+                    <avalonDock:LayoutPanel
+                            Orientation="Horizontal"
+                            x:Name="adLayoutPanelHorizontal">
                         <avalonDock:LayoutDocumentPane x:Name="adLayoutDocumentPane" />
                     </avalonDock:LayoutPanel>
                 </avalonDock:LayoutPanel>

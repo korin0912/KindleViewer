@@ -290,7 +290,7 @@ namespace KindleViewer
             => (direction == ListSortDirection.Ascending) ? books.OrderBy : books.OrderByDescending;
 
         /// <summary>
-        /// イベント - アイテムをマウスダブルクリック
+        /// イベント - リストビューアイテム - マウスダブルクリック
         /// </summary>
         /// <param name="s"></param>
         /// <param name="e"></param>
@@ -301,6 +301,20 @@ namespace KindleViewer
         }
 
         /// <summary>
+        /// イベント - リストビューアイテム - キー入力
+        /// </summary>
+        /// <param name="s"></param>
+        /// <param name="e"></param>
+        private void ListViewItem_KeyDown(object s, KeyEventArgs e)
+        {
+            if (e.Key == Key.I)
+            {
+                Log.Info("ListViewItem_KeyDown");
+                BookInformationDocument.Show(listView.SelectedItem as Book, true);
+            }
+        }
+
+        /// <summary>
         /// イベント - リストビューアイテム選択
         /// </summary>
         /// <param name="s"></param>
@@ -308,16 +322,6 @@ namespace KindleViewer
         private void ListView_SelectionChanged(object s, SelectionChangedEventArgs e)
         {
             BookInformationDocument.Show(listView.SelectedItem as Book, false);
-        }
-
-        /// <summary>
-        /// イベント - リストビューコンテキストメニュー - 本情報
-        /// </summary>
-        /// <param name="s"></param>
-        /// <param name="e"></param>
-        private void ListView_ContextMenu_BookInformation(object s, RoutedEventArgs e)
-        {
-            BookInformationDocument.Show(listView.SelectedItem as Book, true);
         }
 
         /// <summary>

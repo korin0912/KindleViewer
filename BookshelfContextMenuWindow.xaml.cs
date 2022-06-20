@@ -59,13 +59,24 @@ namespace KindleViewer
         }
 
         /// <summary>
-        /// イベント - 本情報メニューアイテム - クリック
+        /// イベント - 本情報 - メニューアイテム - クリック
         /// </summary>
         /// <param name="s"></param>
         /// <param name="e"></param>
-        private void BookInformationMenuItem_Click(object s, RoutedEventArgs e)
+        private void BookInformation_MenuItem_Click(object s, RoutedEventArgs e)
         {
             BookInformationDocument.Show(book, true);
+            Hide();
+        }
+
+        /// <summary>
+        /// イベント - 本を読む - メニューアイテム - クリック
+        /// </summary>
+        /// <param name="s"></param>
+        /// <param name="e"></param>
+        private void BookReader_MenuItem_Click(object s, RoutedEventArgs e)
+        {
+            BookReaderDocument.Open(book);
             Hide();
         }
 

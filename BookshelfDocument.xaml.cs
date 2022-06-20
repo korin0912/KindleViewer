@@ -326,7 +326,7 @@ namespace KindleViewer
         private void ListViewItem_MouseDoubleClick(object s, MouseEventArgs e)
         {
             Log.Info("ListViewItem_MouseDoubleClick");
-            BookReaderDoucument.Open((s as ListViewItem)?.DataContext as Book);
+            BookReaderDocument.Open((s as ListViewItem)?.DataContext as Book);
         }
 
         /// <summary>

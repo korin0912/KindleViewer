@@ -3,7 +3,7 @@ using System.Windows.Controls;
 
 namespace KindleViewer
 {
-    public partial class BookReaderDoucument : UserControl
+    public partial class BookReaderDocument : UserControl
     {
         private Book book;
 
@@ -13,7 +13,7 @@ namespace KindleViewer
         /// コンストラクタ
         /// </summary>
         /// <param name="book"></param>
-        private BookReaderDoucument(Book book)
+        private BookReaderDocument(Book book)
         {
             this.book = book;
 
@@ -35,7 +35,7 @@ namespace KindleViewer
                 return;
             }
 
-            MainWindow.AddDocument(book.Title, new BookReaderDoucument(book), true, layoutDocument =>
+            MainWindow.AddDocument(book.Title, new BookReaderDocument(book), true, layoutDocument =>
             {
                 MainWindow.Instance.ADLayoutDocumentPane.Children.Add(layoutDocument);
             });

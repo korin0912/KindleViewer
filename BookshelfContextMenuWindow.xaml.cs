@@ -21,13 +21,13 @@ namespace KindleViewer
     /// </summary>
     public partial class BookshelfContextMenuWindow : Window
     {
-        private Book book = null;
+        private IBook book = null;
 
         /// <summary>
         /// コンストラクタ
         /// </summary>
         /// <param name="owner"></param>
-        private BookshelfContextMenuWindow(Book book)
+        private BookshelfContextMenuWindow(IBook book)
         {
             this.book = book;
 
@@ -76,7 +76,7 @@ namespace KindleViewer
         /// <param name="e"></param>
         private void BookReader_MenuItem_Click(object s, RoutedEventArgs e)
         {
-            BookReaderDocument.Open(book);
+            BookReaderDocument.Open(book as BookItem);
             Hide();
         }
 
@@ -84,7 +84,7 @@ namespace KindleViewer
         /// 表示
         /// </summary>
         /// <param name="book"></param>
-        public static void Show(Book book)
+        public static void Show(IBook book)
         {
             var window = new BookshelfContextMenuWindow(book);
             window.Show();

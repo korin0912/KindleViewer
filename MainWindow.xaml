@@ -20,11 +20,12 @@
             <MenuItem Header="ファイル">
                 <MenuItem
                         Header="終了"
-                        FlowDirection="LeftToRight"
-                        Click="MenuButton_Quit" />
+                        Click="MenuItem_Click_Quit" />
             </MenuItem>
             <MenuItem Header="ツール">
-                <MenuItem Header="全ての本のシリーズ情報を自動生成" />
+                <MenuItem
+                        Header="全ての本のシリーズ情報を自動生成"
+                        Click="MenuItem_Click_GenerateAllBooksSeries" />
             </MenuItem>
         </Menu>
         <avalonDock:DockingManager

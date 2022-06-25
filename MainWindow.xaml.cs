@@ -166,13 +166,23 @@ namespace KindleViewer
         }
 
         /// <summary>
-        /// アプリ終了
+        /// イベント: メニューアイテム - クリック - アプリ終了
         /// </summary>
         /// <param name="s"></param>
         /// <param name="e"></param>
-        private void MenuButton_Quit(object s, RoutedEventArgs e)
+        private void MenuItem_Click_Quit(object s, RoutedEventArgs e)
         {
             this.Close();
+        }
+
+        /// <summary>
+        /// イベント: メニューアイテム - クリック - 全ての本のシリーズ情報生成
+        /// </summary>
+        /// <param name="s"></param>
+        /// <param name="e"></param>
+        private void MenuItem_Click_GenerateAllBooksSeries(object s, RoutedEventArgs e)
+        {
+            // BookMetadata
         }
     }
 }

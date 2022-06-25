@@ -20,7 +20,7 @@ namespace KindleViewer
         /// 本情報を元に初期化
         /// </summary>
         /// <param name="book"></param>
-        public void InitializeByBook(Book book)
+        public void InitializeByBook(BookItem book)
         {
             // シリーズタイトルと巻数
             if (!string.IsNullOrEmpty(book.TitlePronunciation))

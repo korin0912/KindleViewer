@@ -4,6 +4,7 @@ using System.ComponentModel;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Controls.Primitives;
 using System.Windows.Input;
 using System.Windows.Data;
 using System.Threading.Tasks;
@@ -21,9 +22,11 @@ namespace KindleViewer
 
         private AsyncLock updateLock = new AsyncLock();
 
-        private List<Book> listViewItemsSource => listView.ItemsSource as List<Book>;
+        private List<IBook> listViewItemsSource => listView.ItemsSource as List<IBook>;
 
-        private List<Book> showBooks = new List<Book>();
+        private List<IBook> showBooks = new List<IBook>();
+
+        private bool isSeries = false;
 
         public BookshelfDocument()
         {
@@ -52,7 +55,7 @@ namespace KindleViewer
                     return;
                 }
 
-                var books = GetSortBooksByPurchaseDate(Kindle.Instance.Books.Values, ListSortDirection.Descending);
+                var books = GetSortBooksByPurchaseDate(Kindle.Instance.Books.Values.Where(b => !isSeries ? b is BookItem : b is BookSeries), ListSortDirection.Descending);
                 Log.Info($"listView set books {books.Count}");
                 listView.ItemsSource = books;
 
@@ -79,18 +82,12 @@ namespace KindleViewer
                 var textBoxFilter = this.FindName("BookListView_TextBox_Filter") as TextBox;
                 CollectionViewSource.GetDefaultView(listView.ItemsSource).Filter = (item) =>
                 {
-                    var book = item as Book;
+                    var book = item as IBook;
 
                     var filterText = textBoxFilter.Text.Trim();
                     // Log.Info(filterText);
 
-                    var ret =
-                            filterText.Length <= 0 ||
-                            book.Title.IndexOf(filterText) != -1 ||
-                            book.TitlePronunciation.IndexOf(filterText) != -1 ||
-                            book.Authors.Any(a => a.Author.IndexOf(filterText) != -1 || a.Pronunciation.IndexOf(filterText) != -1) ||
-                            book.Publishers.Any(p => p.Publisher.IndexOf(filterText) != -1)
-                        ;
+                    var ret = book.MatchText(filterText);
 
                     if (ret)
                     {
@@ -166,39 +163,26 @@ namespace KindleViewer
                     {
                         for (var i = range.Start.Value; i <= range.End.Value; i++)
                         {
-                            var book = showBooks[i] as Book;
-                            if (!book.IsShow)
+                            var book = showBooks[i];
+                            if (book.IsShow)
                             {
-                                var stackPanel = wrapPanel.Children[i].FindDescendant<StackPanel>();
-
-                                var image = new Image();
-                                book.CoverImage.Subscribe(async img =>
-                                {
-                                    using (await updateLock.LockAsync())
-                                    {
-                                        this.Dispatcher.Invoke(() =>
-                                        {
-                                            image.Source = img;
-                                        });
-                                    }
-                                });
-                                image.Width = 100;
-                                image.Height = 150;
-                                image.Margin = new Thickness(0, 0, 0, 0);
-                                stackPanel.Children.Add(image);
-
-                                var textBlock = new TextBlock();
-                                textBlock.Text = book.Title;
-                                textBlock.Width = 100;
-                                textBlock.Height = 50;
-                                textBlock.Margin = new Thickness(0, 0, 0, 0);
-                                textBlock.HorizontalAlignment = HorizontalAlignment.Left;
-                                textBlock.TextWrapping = TextWrapping.Wrap;
-                                textBlock.TextTrimming = TextTrimming.CharacterEllipsis;
-                                stackPanel.Children.Add(textBlock);
-
-                                book.Show();
+                                continue;
                             }
+
+                            var grid = wrapPanel.Children[i].FindDescendant<Grid>();
+                            book.Show(async book =>
+                            {
+                                using (await updateLock.LockAsync())
+                                {
+                                    this.Dispatcher.Invoke(() =>
+                                    {
+                                        if (book is BookItem)
+                                        {
+                                            grid.Children.Add(new BookItemContent(book as BookItem));
+                                        }
+                                    });
+                                }
+                            });
                         }
                     });
                 }
@@ -219,7 +203,7 @@ namespace KindleViewer
         /// 本ソート設定
         /// </summary>
         /// <param name="sortDescription"></param>
-        private void SetBooksSort(Func<IEnumerable<Book>, ListSortDirection, List<Book>> sorter, ListSortDirection direction)
+        private void SetBooksSort(Func<IEnumerable<IBook>, ListSortDirection, List<IBook>> sorter, ListSortDirection direction)
         {
             if (listView == null)
             {
@@ -268,16 +252,16 @@ namespace KindleViewer
         /// </summary>
         /// <param name="direction"></param>
         /// <returns></returns>
-        private List<Book> GetSortBooksByTitle(IEnumerable<Book> books, ListSortDirection direction)
-            => GetSortBooksOrder<string>(books, direction).Invoke(b => b.TitlePronunciation).ToList();
+        private List<IBook> GetSortBooksByTitle(IEnumerable<IBook> books, ListSortDirection direction)
+            => GetSortBooksOrder<string>(books, direction).Invoke(b => b.BookshelfTitlePronunciation).ToList();
 
         /// <summary>
         /// 購入日でソートした本リスト取得
         /// </summary>
         /// <param name="direction"></param>
         /// <returns></returns>
-        private List<Book> GetSortBooksByPurchaseDate(IEnumerable<Book> books, ListSortDirection direction)
-            => GetSortBooksOrder<DateTime>(books, direction).Invoke(b => b.PurchaseDate).ToList();
+        private List<IBook> GetSortBooksByPurchaseDate(IEnumerable<IBook> books, ListSortDirection direction)
+            => GetSortBooksOrder<DateTime>(books, direction).Invoke(b => b.BookshelfPurchaseDate).ToList();
 
         /// <summary>
         /// 本リストソーター取得
@@ -286,10 +270,10 @@ namespace KindleViewer
         /// <param name="direction"></param>
         /// <typeparam name="T"></typeparam>
         /// <returns></returns>
-        private Func<Func<Book, T>, IOrderedEnumerable<Book>> GetSortBooksOrder<T>(IEnumerable<Book> books, ListSortDirection direction)
+        private Func<Func<IBook, T>, IOrderedEnumerable<IBook>> GetSortBooksOrder<T>(IEnumerable<IBook> books, ListSortDirection direction)
             => (direction == ListSortDirection.Ascending) ? books.OrderBy : books.OrderByDescending;
 
-        private Book listViewItemRightButtonBook = null;
+        private IBook listViewItemRightButtonBook = null;
 
         /// <summary>
         /// イベント - リストビューアイテム - マウス右ダウン
@@ -299,7 +283,7 @@ namespace KindleViewer
         private void ListViewItem_PreviewMouseRightButtonDown(object s, MouseButtonEventArgs e)
         {
             Log.Info($"ListViewItem_PreviewMouseRightButtonDown");
-            listViewItemRightButtonBook = (s as ListViewItem).Content as Book;
+            listViewItemRightButtonBook = (s as ListViewItem).Content as IBook;
         }
 
         /// <summary>
@@ -310,7 +294,7 @@ namespace KindleViewer
         private void ListViewItem_PreviewMouseRightButtonUp(object s, MouseButtonEventArgs e)
         {
             Log.Info($"ListViewItem_PreviewMouseRightButtonUp");
-            var book = (s as ListViewItem).Content as Book;
+            var book = (s as ListViewItem).Content as IBook;
             if (book == listViewItemRightButtonBook)
             {
                 BookshelfContextMenuWindow.Show(book);
@@ -326,7 +310,7 @@ namespace KindleViewer
         private void ListViewItem_MouseDoubleClick(object s, MouseEventArgs e)
         {
             Log.Info("ListViewItem_MouseDoubleClick");
-            BookReaderDocument.Open((s as ListViewItem)?.DataContext as Book);
+            BookReaderDocument.Open((s as ListViewItem)?.DataContext as BookItem);
         }
 
         /// <summary>
@@ -339,7 +323,7 @@ namespace KindleViewer
             if (e.Key == Key.I)
             {
                 Log.Info("ListViewItem_KeyDown");
-                BookInformationDocument.Show(listView.SelectedItem as Book, true);
+                BookInformationDocument.Show(listView.SelectedItem as IBook, true);
             }
         }
 
@@ -350,7 +334,7 @@ namespace KindleViewer
         /// <param name="e"></param>
         private void ListView_SelectionChanged(object s, SelectionChangedEventArgs e)
         {
-            BookInformationDocument.Show(listView.SelectedItem as Book, false);
+            BookInformationDocument.Show(listView.SelectedItem as IBook, false);
         }
 
         /// <summary>
@@ -361,6 +345,17 @@ namespace KindleViewer
         private void TreeView_SelectedItemChanged(object s, RoutedPropertyChangedEventArgs<Object> e)
         {
             var selectedItem = treeView.SelectedItem;
+        }
+
+        /// <summary>
+        /// イベント - トグルボタン - チェック - シリーズON/OFF
+        /// </summary>
+        /// <param name="s"></param>
+        /// <param name="e"></param>
+        private void Series_ToggleButtonClick(object s, RoutedEventArgs e)
+        {
+            Log.Info($"Series_ToggleButtonClick");
+            var toggleButton = s as ToggleButton;
         }
 
         /// <summary>

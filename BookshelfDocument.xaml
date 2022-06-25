@@ -17,13 +17,34 @@
         <Grid Grid.Column="0">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
                 <RowDefinition Height="*" />
             </Grid.RowDefinitions>
             <GroupBox
-                    Header="並び替え"
+                    Header="フィルター"
+                    HorizontalAlignment="Left"
                     HorizontalContentAlignment="Stretch"
-                    Grid.Row="0"
-                    Margin="5,5,5,5">
+                    Margin="5,5,5,5"
+                    Width="150"
+                    Grid.Row="0">
+                <StackPanel
+                        Orientation="Vertical"
+                        VerticalAlignment="Top"
+                        HorizontalAlignment="Stretch">
+                    <ToggleButton
+                            Content="シリーズ"
+                            HorizontalAlignment="Stretch"
+                            Margin="5,5,5,5"
+                            Click="Series_ToggleButtonClick" />
+                </StackPanel>
+            </GroupBox>
+            <GroupBox
+                    Header="並び替え"
+                    HorizontalAlignment="Left"
+                    HorizontalContentAlignment="Stretch"
+                    Margin="5,5,5,5"
+                    Width="150"
+                    Grid.Row="1">
                 <StackPanel
                         Orientation="Vertical"
                         VerticalAlignment="Top"
@@ -48,7 +69,7 @@
                     HorizontalAlignment="Stretch"
                     VerticalAlignment="Stretch"
                     SelectedItemChanged="TreeView_SelectedItemChanged"
-                    Grid.Row="1">
+                    Grid.Row="2">
                 <TreeViewItem Header="すべて" />
             </TreeView>
         </Grid>
@@ -84,7 +105,7 @@
                         <EventSetter
                                 Event="PreviewMouseRightButtonUp"
                                 Handler="ListViewItem_PreviewMouseRightButtonUp" />
-                                <EventSetter
+                        <EventSetter
                                 Event="PreviewMouseRightButtonDown"
                                 Handler="ListViewItem_PreviewMouseRightButtonDown" />
                         <EventSetter
@@ -102,11 +123,9 @@
                 </ListView.ItemsPanel>
                 <ListView.ItemTemplate>
                     <DataTemplate>
-                        <StackPanel
-                                Orientation="Vertical"
+                        <Grid
                                 Width="100"
-                                Height="200"
-                                VerticalAlignment="Top"></StackPanel>
+                                Height="200" />
                     </DataTemplate>
                 </ListView.ItemTemplate>
             </ListView>

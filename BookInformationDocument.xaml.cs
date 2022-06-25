@@ -7,7 +7,7 @@ namespace KindleViewer
     {
         private static BookInformationDocument Current = null;
 
-        public ReactiveProperty<Book> ShowBook { get; private set; } = new ReactiveProperty<Book>(new Book());
+        public ReactiveProperty<IBook> ShowBook { get; private set; } = new ReactiveProperty<IBook>(new BookItem());
 
         private bool isResize = false;
         private AvalonDock.Layout.LayoutDocumentPane resizeLayoutDocumentPane = null;
@@ -15,7 +15,7 @@ namespace KindleViewer
         /// <summary>
         /// コンストラクタ
         /// </summary>
-        private BookInformationDocument(Book book)
+        private BookInformationDocument(IBook book)
         {
             ShowBook.Value = book;
 
@@ -30,6 +30,7 @@ namespace KindleViewer
                 {
                     isResize = false;
                     resizeLayoutDocumentPane.DockWidth = new System.Windows.GridLength(300);
+                    resizeLayoutDocumentPane.ResizableAbsoluteDockWidth = 300;
                 }
             };
 
@@ -49,9 +50,9 @@ namespace KindleViewer
         /// 本設定
         /// </summary>
         /// <param name="book"></param>
-        public void SetBook(Book book)
+        public void SetBook(IBook book)
         {
-            Log.Info($"set book information. {book.Title}");
+            Log.Info($"set book information. {book.BookshelfTitle}");
             ShowBook.Value = book;
         }
 
@@ -59,7 +60,7 @@ namespace KindleViewer
         /// 表示
         /// </summary>
         /// <param name="book"></param>
-        public static void Show(Book book, bool isDocumentOpen)
+        public static void Show(IBook book, bool isDocumentOpen)
         {
             if (book == null)
             {

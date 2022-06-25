@@ -5,17 +5,17 @@ namespace KindleViewer
 {
     public partial class BookReaderDocument : UserControl
     {
-        private Book book;
+        private BookItem bookItem;
 
-        public Uri ReaderURI => book.ReaderURI;
+        public Uri ReaderURI => bookItem.ReaderURI;
 
         /// <summary>
         /// コンストラクタ
         /// </summary>
         /// <param name="book"></param>
-        private BookReaderDocument(Book book)
+        private BookReaderDocument(BookItem bookItem)
         {
-            this.book = book;
+            this.bookItem = bookItem;
 
             DataContext = this;
 
@@ -28,14 +28,14 @@ namespace KindleViewer
         /// 本開く
         /// </summary>
         /// <param name="book"></param>
-        public static void Open(Book book)
+        public static void Open(BookItem bookItem)
         {
-            if (book == null)
+            if (bookItem == null)
             {
                 return;
             }
 
-            MainWindow.AddDocument(book.Title, new BookReaderDocument(book), true, layoutDocument =>
+            MainWindow.AddDocument(bookItem.Title, new BookReaderDocument(bookItem), true, layoutDocument =>
             {
                 MainWindow.Instance.ADLayoutDocumentPane.Children.Add(layoutDocument);
             });

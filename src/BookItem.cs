@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Linq;
 using System.IO;
 using System.Xml;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Media.Imaging;
 using System.Security.Cryptography;
@@ -10,9 +12,15 @@ using Reactive.Bindings;
 
 namespace KindleViewer
 {
-    public class Book
+    public class BookItem : IBook
     {
-        public static readonly DateTime UnknownDateTime = new DateTime(1900, 1, 1, 0, 0, 0);
+        public string BookshelfTitle => Title;
+
+        public string BookshelfTitlePronunciation => TitlePronunciation;
+
+        public DateTime BookshelfPurchaseDate => PurchaseDate;
+
+        public ReactiveProperty<BitmapImage> BookshelfImage => CoverImage;
 
         public int Index { get; private set; } = -1;
 
@@ -48,11 +56,11 @@ namespace KindleViewer
 
         public List<PublisherData> Publishers { get; private set; } = new List<PublisherData>();
 
-        public DateTime PublicationDate { get; private set; } = UnknownDateTime;
+        public DateTime PublicationDate { get; private set; } = Consts.UnknownDateTime;
 
         public string PublicationDateFormat => PublicationDate.ToString("yyyy/MM/dd");
 
-        public DateTime PurchaseDate { get; private set; } = UnknownDateTime;
+        public DateTime PurchaseDate { get; private set; } = Consts.UnknownDateTime;
 
         public string PurchaseDateFormat => PurchaseDate.ToString("yyyy/MM/dd");
 
@@ -87,7 +95,7 @@ namespace KindleViewer
         /// <summary>
         /// コンストラクタ
         /// </summary>
-        public Book()
+        public BookItem()
         {
         }
 
@@ -163,7 +171,7 @@ namespace KindleViewer
                     Origins.Add(new OriginData(XmlUtils.GetInnerText(node)));
                 });
 
-                ReaderURI = new Uri($"{Kindle.KindleCloudReaderUriPrefix}{ASIN}?language={System.Globalization.CultureInfo.CurrentCulture.Name}");
+                ReaderURI = new Uri($"{Consts.KindleCloudReaderUriPrefix}{ASIN}?language={System.Globalization.CultureInfo.CurrentCulture.Name}");
                 // ReaderURI = new Uri("https://www.google.co.jp");
 
                 Visibility = Visibility.Visible;
@@ -174,13 +182,14 @@ namespace KindleViewer
                 return false;
             }
 
-            return PurchaseDate != UnknownDateTime;
+            return PurchaseDate != Consts.UnknownDateTime;
         }
 
         /// <summary>
-        /// 表示更新
+        /// 表示
         /// </summary>
-        public void Show()
+        /// <param name="showAction"></param>
+        public void Show(Action<IBook> showAction)
         {
             if (IsShow)
             {
@@ -190,37 +199,16 @@ namespace KindleViewer
             IsShow = true;
 
             // カバー画像更新
-            if (!string.IsNullOrEmpty(ASIN))
+            LoadCoverImage();
+
+            CoverImage.Subscribe(img =>
             {
-                // ASIN から カバー画像ファイル名取得
-                var md5 = MD5.Create();
-                var fhash = md5.ComputeHash(Encoding.UTF8.GetBytes(ASIN));
-                md5.Clear();
-                var sb = new StringBuilder();
-                foreach (var b in fhash)
-                {
-                    sb.Append(b.ToString("X2"));
-                }
-                var fname = sb.ToString();
-
-                // 画像ローダーでロード
-                ImageLoader.Instance.Load(
-                    $"{Kindle.CoverCacheFolderPath}{Path.DirectorySeparatorChar}{fname}.jpg",
-                    image =>
-                    {
-                        if (image == null)
-                        {
-                            return;
-                        }
-
-                        CoverImage.Value = image;
-                    }
-                );
-            }
+                showAction?.Invoke(this);
+            });
         }
 
         /// <summary>
-        /// 非表示更新
+        /// 非表示
         /// </summary>
         public void Hide()
         {
@@ -232,6 +220,65 @@ namespace KindleViewer
             IsShow = false;
 
             // カバー画像
+            UnloadCoverImage();
+        }
+
+        /// <summary>
+        /// テキスト一致
+        /// </summary>
+        /// <param name="text"></param>
+        /// <returns></returns>
+        public bool MatchText(string text)
+        {
+            return
+                text.Length <= 0 ||
+                Title.IndexOf(text) != -1 ||
+                TitlePronunciation.IndexOf(text) != -1 ||
+                Authors.Any(a => a.Author.IndexOf(text) != -1 || a.Pronunciation.IndexOf(text) != -1) ||
+                Publishers.Any(p => p.Publisher.IndexOf(text) != -1);
+        }
+
+        /// <summary>
+        /// カバー画像ロード
+        /// </summary>
+        public void LoadCoverImage()
+        {
+            if (string.IsNullOrEmpty(ASIN))
+            {
+                return;
+            }
+
+            // ASIN から カバー画像ファイル名取得
+            var md5 = MD5.Create();
+            var fhash = md5.ComputeHash(Encoding.UTF8.GetBytes(ASIN));
+            md5.Clear();
+            var sb = new StringBuilder();
+            foreach (var b in fhash)
+            {
+                sb.Append(b.ToString("X2"));
+            }
+            var fname = sb.ToString();
+
+            // 画像ローダーでロード
+            ImageLoader.Instance.Load(
+                $"{Consts.CoverCacheFolderPath}{Path.DirectorySeparatorChar}{fname}.jpg",
+                image =>
+                {
+                    if (image == null)
+                    {
+                        return;
+                    }
+
+                    CoverImage.Value = image;
+                }
+            );
+        }
+
+        /// <summary>
+        /// カバー画像アンロード
+        /// </summary>
+        public void UnloadCoverImage()
+        {
             CoverImage = new ReactiveProperty<BitmapImage>();
         }
 
